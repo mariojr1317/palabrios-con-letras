@@ -322,8 +322,10 @@ function physicsTick(){
  S.x+=dx;
 
  // A mode/trigger input is consumed once, on a deterministic 240-Hz tick.
+ const wasGrounded=S.grounded;
  const {jumpFired}=handleInputTap();
  const currentMode=S.mode;
+ S.grounded=(currentMode==='spider'&&jumpFired&&wasGrounded);
  if(currentMode==='wave'){
   const rise=(S.held?1:-1)*(S.gravity<0?-1:1)*dx;
   S.vy=rise/Y_SCALE;
@@ -501,7 +503,7 @@ async function onlineLevel(id,name){
 $('#load').addEventListener('click',()=>{const f=$('#file').files[0],u=$('#url').value.trim(),m=$('#music');if(musicUrl){URL.revokeObjectURL(musicUrl);musicUrl=null}if(f){musicUrl=URL.createObjectURL(f);m.src=musicUrl;$('#musicStatus').textContent='Archivo cargado: '+f.name}else if(/^https?:\/\//i.test(u)){m.src=u;$('#musicStatus').textContent='URL cargada'}else{setStatus('Selecciona un archivo de audio o pega una URL directa.');return}m.load();m.oncanplay=()=>$('#musicStatus').textContent='Canción lista';m.onerror=()=>$('#musicStatus').textContent='No se pudo cargar; prueba con un archivo local.'});
 $('#play').addEventListener('click',()=>{const m=$('#music');if(!m.src){setStatus('Carga una canción primero.');return}if(m.paused)m.play().then(()=>$('#musicStatus').textContent='Reproduciendo').catch(()=>$('#musicStatus').textContent='No se pudo reproducir');else{m.pause();$('#musicStatus').textContent='En pausa'}});
 $('#stop').addEventListener('click',()=>{$('#music').pause();$('#music').currentTime=0;$('#musicStatus').textContent='Canción detenida'});
-window.TemuDash={loadPayload,parseObjects,ids:{portals:PORTALS,hazards:Array.from(HAZARDS),orbs:ORBS,pads:PADS}};
+window.TemuDash={loadPayload,parseObjects,ids:{portals:PORTALS,hazards:Array.from(HAZARDS),orbs:ORBS,pads:PADS},physics:{step:physicsTick,box:box,hazardHit:hazardHit,speedDx:speedDx,cubeParams:cubePhysics,state:()=>({x:S.x,y:S.y,vy:S.vy,mode:S.mode,gravity:S.gravity,speed:S.speed,size:S.size,grounded:S.grounded,progress:S.progress})}};
 try{$('#showHitboxes').addEventListener('change',()=>draw());}catch(_){}
 demo('Entrega Express');S.active=false;S.tries=0;stats();setStatus('Motor con simulación fija de 240 Hz. Pulsa JUGAR / REINTENTAR para empezar.');requestAnimationFrame(frame);
 })();
