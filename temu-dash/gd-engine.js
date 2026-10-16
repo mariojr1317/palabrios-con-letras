@@ -12,17 +12,23 @@ const PORTALS={
   200:['speed',.7,'#63a7ff'],201:['speed',.9,'#e9f1ff'],202:['speed',1.1,'#ffad45'],203:['speed',1.3,'#ff73a9'],1334:['speed',1.6,'#c96aff'],
   286:['dual',1,'#ffe45a'],287:['dual',0,'#4b9dff'],747:['teleport',0,'#4b9dff'],749:['teleport',0,'#ffe45a']
 };
-const HAZARDS=new Set([8,9,39,61,88,89,98,103,135,144,145,151,152,153,154,155,156,1701,1702,1703,1711,1712,1713,1714,1715,1716,1717,1718,1719,1720,1721,1722,1723,1724,1725,1726,1727,1728,1729,1730,1731,1732,1733,1734,1735,1736,243,244,363,364,365,366,367,368,397,398,399,421,422,446,447,667,675,676,677,720,768,918,989,991,1705,1706,1707,1708,1709,1710]);
-const SAWS=new Set([88,89,98,918,1705,1706,1707,1734,1735,1736]);
-const CIRCLE_HAZARDS=new Set([...SAWS,1728,1729,1702]);
-const WIDE_RECT_HAZARDS=new Set([421,422,768,1725,1726,1727]);
-const SAW_RADII={88:21.6,89:32.3,98:12,918:24,1702:15,1705:21.6,1706:32.3,1707:12,1728:15,1729:15,1734:32,1735:17.51,1736:12};
-const SLOPES=new Set([289,291,294,295,305,307,326,327,349,351,371,372,665,666,1338,1339,1743,1744,1745,1746,1747,1748,1749,1750]);
-const SLOPE_WIDE=new Set([291,295,307,351,364,367,372,666,1339,1718,1724,1744,1746,1748,1750]);
-const SLOPE_HAZARDS=new Set([363,364,366,367,989,991,1717,1718,1723,1724,1732,1733]);
-const RECT_HAZARDS=new Set([9,243,244,365,368,421,422,667,720,768,1701,1711,1712,1713,1714,1715,1716,1719,1720,1721,1722,1725,1726,1727,1730,1731]);
+const INVISIBLE_HAZARDS=new Set([144,145,459,740,741,742]);
+const INVISIBLE_SOLIDS=new Set([146,147,204,206,673,674]);
+const SPIKE_SIZE={39:.65,103:.65,145:.55,177:1,178:.65,179:.5,216:1,217:.65,218:.5,392:.35,458:.35,459:.35};
+const HAZARDS=new Set([8,9,39,61,88,89,98,103,135,144,145,151,152,153,154,155,156,177,178,179,216,217,218,243,244,363,364,365,366,367,368,392,397,398,399,421,422,446,447,458,459,667,720,740,741,742,768,918,919,991,1327,1328,1701,1702,1703,1705,1706,1707,1708,1709,1710,1711,1712,1713,1714,1715,1716,1717,1718,1719,1720,1721,1722,1723,1724,1725,1726,1727,1728,1729,1730,1731,1732,1733,1734,1735,1736]);
+const SAWS=new Set([88,89,98,154,155,156,740,741,742,1705,1706,1707,1734,1735,1736]);
+const CIRCLE_HAZARDS=new Set([...SAWS,446,447,1702,1728,1729]);
+const WIDE_RECT_HAZARDS=new Set([421,422,768,918,919,1328,1725,1726,1727]);
+const SAW_RADII={88:21.6,89:32.3,98:12,154:21.6,155:15,156:10,446:15,447:11,740:21.6,741:15,742:10,1702:15,1705:21.6,1706:32.3,1707:12,1728:15,1729:15,1734:32,1735:17.51,1736:12};
+const SLOPES=new Set([289,291,294,295,305,307,326,327,349,351,371,372,665,666,673,674,713,714,715,716,730,731,732,733,762,763,771,772,877,878,888,889,895,896,1014,1015,1033,1034,1338,1339,1743,1744,1745,1746,1747,1748,1749,1750]);
+const SLOPE_WIDE=new Set([291,295,307,351,372,666,674,714,716,731,733,763,772,878,889,896,1015,1339,1744,1746,1748,1750]);
+const SLOPE_HAZARDS=new Set([363,364,366,367,991,1717,1718,1723,1724,1732,1733]);
+const RECT_HAZARDS=new Set([9,151,152,153,243,244,365,368,397,398,399,421,422,667,720,768,918,919,1327,1328,1701,1708,1709,1710,1711,1712,1713,1714,1715,1716,1719,1720,1721,1722,1725,1726,1727,1730,1731]);
 const ONE_WAY_SOLIDS=new Set([143]);
-const SOLIDS=new Set([1,2,3,4,5,6,7,40,62,63,64,65,66,68,69,70,71,72,73,74,75,76,77,78,80,81,82,83,90,91,92,93,94,95,96,116,117,118,119,120,121,122,143,146,147,1903]);
+const SOLIDS=new Set([1,2,3,4,5,6,7,40,62,63,64,65,66,68,69,70,71,72,73,74,75,76,77,78,80,81,82,83,90,91,92,93,94,95,96,116,117,118,119,120,121,122,143,146,147,160,161,162,163,164,165,166,167,168,169,170,171,172,173,174,175,176,192,195,196,197,204,206,207,208,209,210,211,212,213,215,219,220,247,248,249,250,251,252,253,255,256,257,258,259,260,261,263,264,265,266,267,268,269,270,271,272,274,275,279,280,281,282,369,370,467,468,469,470,471,472,653,654,655,656,657,658,659,661,662,663,664,713,715,722,723,724,734,735,736,737,738,762,769,770,773,774,775,807,808,809,810,811,812,877,880,881,882,883,884,885,890,891,903,904,905,911,916,917,1903]);
+const HALF_HEIGHT_BLOCKS=new Set([40,68,147,192,196,204,215,219,369,370,662,663,664,735]);
+const SMALL_BLOCKS=new Set([195,206,220,724,736,916,917]);
+const THREE_QUARTER_WIDTH_BLOCKS=new Set([197]);
 const ORBS={36:['jump',1,'#ffe45c'],141:['jump',.66,'#ff70de'],84:['gravity',-1,'#58aaff'],1022:['gravity',1,'#65ff78'],1333:['jump',1.25,'#ff5252'],1330:['gravity',1,'#292d3d'],1704:['dash',1,'#62ff61'],1751:['dash',-1,'#ff5a8a']};
 const PADS={35:['jump',1,'#ffe45c'],140:['jump',.7,'#ff70de'],67:['gravity',-1,'#58aaff'],1332:['jump',1.25,'#ff5252']};
 const COINS=new Set([1329,142]);
@@ -95,9 +101,9 @@ function background(){
  for(let y=0;y<H;y+=TILE){ctx.beginPath();ctx.moveTo(0,y);ctx.lineTo(W,y);ctx.stroke()}
  ctx.fillStyle='#101a34';ctx.fillRect(0,FLOOR,W,H-FLOOR);ctx.fillStyle='#50f6ff';ctx.fillRect(0,FLOOR,W,4)
 }
-function drawBlock(o,x,y,size){
- ctx.fillStyle=o.id===1?'#46c6df':['#6078c9','#5669af','#374c90','#4563aa','#34517e','#293c70'][Math.abs(o.id)%6];ctx.fillRect(x-size/2,y-size/2,size,size);
- ctx.strokeStyle='#8befff';ctx.lineWidth=2;ctx.strokeRect(x-size/2+1,y-size/2+1,size-2,size-2);ctx.fillStyle='rgba(255,255,255,.15)';ctx.fillRect(x-size/2+3,y-size/2+3,size-6,5)
+function drawBlock(o,x,y,size,height=size){
+ ctx.fillStyle=o.id===1?'#46c6df':['#6078c9','#5669af','#374c90','#4563aa','#34517e','#293c70'][Math.abs(o.id)%6];ctx.fillRect(x-size/2,y-height/2,size,height);
+ ctx.strokeStyle='#8befff';ctx.lineWidth=2;ctx.strokeRect(x-size/2+1,y-height/2+1,Math.max(0,size-2),Math.max(0,height-2));ctx.fillStyle='rgba(255,255,255,.15)';ctx.fillRect(x-size/2+3,y-height/2+3,Math.max(0,size-6),Math.min(5,Math.max(0,height-6)))
 }
 function drawHazard(o,x,y,z){
  ctx.save();ctx.translate(x,y);ctx.rotate((o.r||0)*Math.PI/180);
@@ -114,12 +120,13 @@ function drawSlope(o){
 }
 function drawObj(o){
  if(!onScreen(o))return;const x=PLAYER_X+o.x-S.x,y=scrY(o.y),z=30*(o.scale||1),p=PORTALS[o.id];
+ if(INVISIBLE_HAZARDS.has(o.id)||INVISIBLE_SOLIDS.has(o.id))return;
  if(p){ctx.save();ctx.translate(x,y);ctx.strokeStyle=p[2];ctx.lineWidth=5;ctx.shadowColor=p[2];ctx.shadowBlur=14;ctx.beginPath();ctx.ellipse(0,0,13,33,0,0,Math.PI*2);ctx.stroke();ctx.shadowBlur=0;ctx.globalAlpha=.22;ctx.fillStyle=p[2];ctx.fill();ctx.globalAlpha=1;ctx.fillStyle='#fff';ctx.font='bold 9px system-ui';ctx.textAlign='center';ctx.fillText(p[0]==='mode'?p[1].toUpperCase():p[0].toUpperCase(),0,48);ctx.restore();return}
- if(HAZARDS.has(o.id)){drawHazard(o,x,y,CIRCLE_HAZARDS.has(o.id)?Math.max(z,sawRadius(o)*2):z);return}
+ if(HAZARDS.has(o.id)){const hz=z*(SPIKE_SIZE[o.id]||1);drawHazard(o,x,y,CIRCLE_HAZARDS.has(o.id)?Math.max(hz,sawRadius(o)*2):hz);return}
  if(ORBS[o.id]){ctx.strokeStyle=ORBS[o.id][2];ctx.lineWidth=4;ctx.shadowColor=ORBS[o.id][2];ctx.shadowBlur=10;ctx.beginPath();ctx.arc(x,y,11,0,Math.PI*2);ctx.stroke();ctx.shadowBlur=0;return}
  if(PADS[o.id]){ctx.fillStyle=PADS[o.id][2];ctx.beginPath();ctx.moveTo(x-16,y+7);ctx.lineTo(x+16,y+7);ctx.lineTo(x+9,y-6);ctx.lineTo(x-9,y-6);ctx.closePath();ctx.fill();return}
  if(COINS.has(o.id)){ctx.strokeStyle='#ffe56a';ctx.lineWidth=4;ctx.beginPath();ctx.arc(x,y,10,0,Math.PI*2);ctx.stroke();return}
- if(SOLIDS.has(o.id)){drawBlock(o,x,y,z);return}
+ if(SOLIDS.has(o.id)){const hs=objectHalfSize(o);drawBlock(o,x,y,hs.hx*2,hs.hy*2);return}
  if(SLOPES.has(o.id)){drawSlope(o);return}
  ctx.fillStyle='rgba(180,194,230,.35)';ctx.fillRect(x-4,y-4,8,8)
 }
@@ -155,10 +162,13 @@ function box(){
  return {l:S.x-hx,r:S.x+hx,b:S.y,t:S.y+2*hy,cx:S.x,cy:S.y+hy,hx,hy};
 }
 function objectHalfSize(o){
- const size=30*(o.scale||1);
+ const scale=o.scale||1,size=30*scale;
  if(o.id===143)return {hx:size/2,hy:size/2};
- if(SLOPES.has(o.id))return {hx:(SLOPE_WIDE.has(o.id)?30:15)*(o.scale||1),hy:15*(o.scale||1)};
- return {hx:size/2,hy:size/2};
+ if(SLOPES.has(o.id))return {hx:(SLOPE_WIDE.has(o.id)?30:15)*scale,hy:15*scale};
+ if(SMALL_BLOCKS.has(o.id))return {hx:size*.25,hy:size*.25};
+ const hx=THREE_QUARTER_WIDTH_BLOCKS.has(o.id)?size*.375:size/2;
+ const hy=HALF_HEIGHT_BLOCKS.has(o.id)?size*.25:size/2;
+ return {hx,hy};
 }
 function obox(o){
  const hs=objectHalfSize(o);
@@ -189,15 +199,11 @@ function sawRadius(o){
  const base=SAW_RADII[o.id];
  return base ? base*(o.scale||1) : 12*(o.scale||1);
 }
-function spikeVertices(o,inset=2){
- const z=30*(o.scale||1),half=z/2,m=inset*(o.scale||1),angle=-(o.r||0)*Math.PI/180;
- // El dibujo del pincho es un triángulo. Reducimos solo un poco el contorno
- // para respetar el margen visual de la hitbox original de Geometry Dash.
- const local=o.fy
-  ? [{x:-half+m,y:half-m},{x:half-m,y:half-m},{x:0,y:-half+m}]
-  : [{x:-half+m,y:-half+m},{x:half-m,y:-half+m},{x:0,y:half-m}];
- const c=Math.cos(angle),s=Math.sin(angle);
- return local.map(p=>({x:o.x+p.x*c-p.y*s,y:o.y+p.x*s+p.y*c}));
+function spikeGeometry(o){
+ const z=30*(o.scale||1)*(SPIKE_SIZE[o.id]||1),angle=-(o.r||0)*Math.PI/180;
+ // Como en Geometry Dash, el pincho tiene un rectángulo pequeño y elevado hacia la punta.
+ const offset=(o.fy?-1:1)*z*.24;
+ return {cx:o.x-Math.sin(angle)*offset,cy:o.y+Math.cos(angle)*offset,hx:z*.20,hy:z*.16,angle};
 }
 function slopeVertices(o){
  const scale=o.scale||1,w=(SLOPE_WIDE.has(o.id)?60:30)*scale,h=30*scale,fx=o.fx?-1:1,fy=o.fy?-1:1;
@@ -240,8 +246,8 @@ function hazardHit(o,player){
  if(CIRCLE_HAZARDS.has(o.id))return circleRectHit(player,o.x,o.y,sawRadius(o));
  if(SLOPE_HAZARDS.has(o.id))return polygonRectHit(player,slopeVertices(o));
  if(RECT_HAZARDS.has(o.id))return orientedRectHit(player,{cx:o.x,cy:o.y,hx:(WIDE_RECT_HAZARDS.has(o.id)?30:15)*(o.scale||1),hy:15*(o.scale||1),angle:-(o.r||0)*Math.PI/180});
- // Ordinary spikes use a triangle inset slightly from the visible art, not a small rectangle.
- return polygonRectHit(player,spikeVertices(o));
+ // Los pinchos comunes usan un rectángulo pequeño, girado y elevado hacia la punta.
+ return orientedRectHit(player,spikeGeometry(o));
 }
 function portalBox(o){
  return {l:o.x-12*(o.scale||1),r:o.x+12*(o.scale||1),b:o.y-30*(o.scale||1),t:o.y+30*(o.scale||1)};
@@ -484,7 +490,8 @@ function drawHitboxes(){
   }else if(RECT_HAZARDS.has(o.id)){
    const z=30*(o.scale||1),w=WIDE_RECT_HAZARDS.has(o.id)?z*2:z,a=(o.r||0)*Math.PI/180,c=Math.cos(a),s=Math.sin(a);const pts=[[-w/2,-z/2],[w/2,-z/2],[w/2,z/2],[-w/2,z/2]].map(v=>[sx+v[0]*c-v[1]*s,sy-v[0]*s-v[1]*c]);ctx.strokeStyle='#ff647c';ctx.beginPath();ctx.moveTo(pts[0][0],pts[0][1]);pts.slice(1).forEach(v=>ctx.lineTo(v[0],v[1]));ctx.closePath();ctx.stroke();
   }else if(HAZARDS.has(o.id)){
-   const pts=spikeVertices(o).map(v=>[PLAYER_X+v.x-S.x,FLOOR-v.y]);
+   const g=spikeGeometry(o),a=g.angle,c=Math.cos(a),s=Math.sin(a);
+   const pts=[[-g.hx,-g.hy],[g.hx,-g.hy],[g.hx,g.hy],[-g.hx,g.hy]].map(v=>[PLAYER_X+g.cx-S.x+v[0]*c-v[1]*s,FLOOR-(g.cy+v[0]*s+v[1]*c)]);
    ctx.strokeStyle='#ff647c';ctx.beginPath();ctx.moveTo(pts[0][0],pts[0][1]);pts.slice(1).forEach(v=>ctx.lineTo(v[0],v[1]));ctx.closePath();ctx.stroke();
   }else if(SOLIDS.has(o.id)||ONE_WAY_SOLIDS.has(o.id)){
    const b=obox(o);ctx.strokeStyle='#77b8ff';ctx.strokeRect(sx-(o.x-b.l),FLOOR-b.t,b.r-b.l,b.t-b.b);
@@ -563,7 +570,7 @@ async function onlineLevel(id,name){
 $('#load').addEventListener('click',()=>{const f=$('#file').files[0],u=$('#url').value.trim(),m=$('#music');if(musicUrl){URL.revokeObjectURL(musicUrl);musicUrl=null}if(f){musicUrl=URL.createObjectURL(f);m.src=musicUrl;$('#musicStatus').textContent='Archivo cargado: '+f.name}else if(/^https?:\/\//i.test(u)){m.src=u;$('#musicStatus').textContent='URL cargada'}else{setStatus('Selecciona un archivo de audio o pega una URL directa.');return}m.load();m.oncanplay=()=>$('#musicStatus').textContent='Canción lista';m.onerror=()=>$('#musicStatus').textContent='No se pudo cargar; prueba con un archivo local.'});
 $('#play').addEventListener('click',()=>{const m=$('#music');if(!m.src){setStatus('Carga una canción primero.');return}if(m.paused)m.play().then(()=>$('#musicStatus').textContent='Reproduciendo').catch(()=>$('#musicStatus').textContent='No se pudo reproducir');else{m.pause();$('#musicStatus').textContent='En pausa'}});
 $('#stop').addEventListener('click',()=>{$('#music').pause();$('#music').currentTime=0;$('#musicStatus').textContent='Canción detenida'});
-window.TemuDash={loadPayload,parseObjects,ids:{portals:PORTALS,hazards:Array.from(HAZARDS),orbs:ORBS,pads:PADS},physics:{start:reset,press:press,release:releaseInput,step:physicsTick,box:box,hazardHit:hazardHit,spikeVertices:spikeVertices,speedDx:speedDx,cubeParams:cubePhysics,state:()=>({x:S.x,y:S.y,vy:S.vy,mode:S.mode,gravity:S.gravity,speed:S.speed,size:S.size,grounded:S.grounded,progress:S.progress})}};
+window.TemuDash={loadPayload,parseObjects,ids:{portals:PORTALS,hazards:Array.from(HAZARDS),orbs:ORBS,pads:PADS},physics:{start:reset,press:press,release:releaseInput,step:physicsTick,box:box,hazardHit:hazardHit,spikeGeometry:spikeGeometry,speedDx:speedDx,cubeParams:cubePhysics,state:()=>({x:S.x,y:S.y,vy:S.vy,mode:S.mode,gravity:S.gravity,speed:S.speed,size:S.size,grounded:S.grounded,progress:S.progress})}};
 try{$('#showHitboxes').addEventListener('change',()=>draw());}catch(_){}
 demo('Entrega Express');S.active=false;S.tries=0;stats();setStatus('Motor con simulación fija de 240 Hz. Pulsa JUGAR / REINTENTAR para empezar.');requestAnimationFrame(frame);
 })();
