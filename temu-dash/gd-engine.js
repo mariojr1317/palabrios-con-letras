@@ -67,10 +67,16 @@ async function decodeLevel(p){
  let s=extractPayload(p).trim();
  if(s.includes(';')&&s.includes(',')&&!/^[A-Za-z0-9_+/=-]+$/.test(s))return s;
  if(s.startsWith('kA4,')||s.startsWith('1,'))return s;
- if(!('DecompressionStream'in window))throw new Error('Este navegador no puede descomprimir gzip. Actualiza Chrome.');
+ if(!('DecompressionStream'in window))throw new Error('Este navegador no puede descomprimir los datos del nivel. Actualiza Chrome.');
  s=s.replace(/\s/g,'').replace(/-/g,'+').replace(/_/g,'/');while(s.length%4)s+='=';
- const run=async(b64)=>{const bin=atob(b64),bytes=Uint8Array.from(bin,c=>c.charCodeAt(0));const stream=new Blob([bytes]).stream().pipeThrough(new DecompressionStream('gzip'));return new Response(stream).text()};
- try{return await run(s)}catch(_){try{return await run('H4sIAAAAAAAAA'+s)}catch(__){throw new Error('No pude descomprimir el nivel. Puede ser un formato oficial truncado o distinto.')}}}
+ const run=async(b64,format)=>{const bin=atob(b64),bytes=Uint8Array.from(bin,c=>c.charCodeAt(0));const stream=new Blob([bytes]).stream().pipeThrough(new DecompressionStream(format));return new Response(stream).text()};
+ const formats=['gzip','deflate','deflate-raw'];
+ for(const format of formats){try{return await run(s,format)}catch(_){}}
+ // Algunos formatos históricos pueden contener un prefijo gzip incompleto.
+ const candidates=['H4sIAAAAAAAAA'+s,'H4sIAAAAAAAAC'+s];
+ for(const candidate of candidates){for(const format of formats){try{return await run(candidate,format)}catch(_){}}}
+ throw new Error('Los datos llegaron, pero no se pudieron descomprimir como GZIP/Deflate. Puede ser un formato distinto o un nivel truncado.')
+}
 async function loadPayload(p,n,id,source){const inner=await decodeLevel(p);loadParsed(n||(p&&p.name)||'Nivel descargado',id||(p&&p.id)||'',parseObjects(inner),source)}
 function scrY(y){return FLOOR-y}
 function onScreen(o){const x=PLAYER_X+o.x-S.x;return x>-100&&x<W+100}
@@ -165,24 +171,58 @@ $('#pause').addEventListener('click',()=>{if(!S.active&&!S.paused)return;S.pause
 document.querySelectorAll('.level').forEach(b=>b.addEventListener('click',()=>demo(b.dataset.n)));
 $('#searchLevels').addEventListener('click',()=>search(false));$('#testProxy').addEventListener('click',()=>search(true));
 $('#loadLevelFile').addEventListener('change',async e=>{const f=e.target.files&&e.target.files[0];if(!f)return;try{let payload=await f.text();if(f.name.toLowerCase().endsWith('.json')){try{payload=JSON.parse(payload)}catch(_){throw new Error('El JSON está dañado')}}await loadPayload(payload,(payload&&payload.name)||f.name.replace(/\.[^.]+$/,''),(payload&&payload.id)||'','archivo local')}catch(err){setStatus('No se pudo cargar: '+err.message)}});
+function apiEndpoint(mode, params){
+ let base=$('#apiBase').value.trim().replace(/\/+$/,'');
+ if(!base){
+  const host=window.location.hostname||'';
+  if(host.endsWith('github.io'))throw new Error('GitHub Pages no puede ejecutar la API del servidor. Despliega temu-dash en Vercel y pega su dominio en “Servidor API (opcional)”.');
+  base=window.location.origin;
+ }
+ let url;
+ try{url=new URL(base)}catch(_){throw new Error('La URL de API no es válida. Pega solo el dominio HTTPS de tu despliegue Vercel.')}
+ if(url.protocol!=='https:'&&url.hostname!=='localhost')throw new Error('La API debe usar HTTPS.');
+ url.pathname=url.pathname.replace(/\/+$/,'')+'/api/levels';url.search='';url.hash='';
+ url.searchParams.set('mode',mode);Object.entries(params||{}).forEach(([k,v])=>url.searchParams.set(k,String(v)));
+ return url.href;
+}
+async function apiRequest(mode,params){
+ const response=await fetch(apiEndpoint(mode,params),{headers:{Accept:'application/json'}});
+ const raw=await response.text();let data;
+ try{data=JSON.parse(raw)}catch(_){throw new Error('La API no devolvió JSON (HTTP '+response.status+'). Comprueba que el dominio Vercel sea correcto.')}
+ if(!response.ok)throw new Error(data.error||('HTTP '+response.status));
+ if(data&&data.error)throw new Error(data.error);
+ return data;
+}
+try{
+ const apiInput=$('#apiBase');
+ apiInput.value=window.localStorage.getItem('temuDashApiBase')||'';
+ apiInput.addEventListener('change',()=>window.localStorage.setItem('temuDashApiBase',apiInput.value.trim()));
+}catch(_){}
 async function search(test){
  const q=$('#levelQuery').value.trim();
- if(!q&&test){const probe=$('#testProxy');probe.disabled=true;$('#levelStatus').textContent='Probando la API de GDBrowser…';try{const pr=await fetch('https://gdbrowser.com/api/level/128',{headers:{Accept:'application/json'}});if(!pr.ok)throw new Error('HTTP '+pr.status);await pr.json();$('#levelStatus').textContent='La API respondió correctamente. Escribe el nombre o ID de un nivel para buscarlo.'}catch(err){$('#levelStatus').textContent='No se pudo acceder a GDBrowser desde este navegador: '+err.message+'. Puede ser una restricción CORS del servidor.'}finally{probe.disabled=false}return}
- if(!q){setStatus('Escribe el nombre de un nivel o su ID.');return}
- const button=test?$('#testProxy'):$('#searchLevels');button.disabled=true;$('#levelResults').replaceChildren();$('#levelStatus').textContent='Consultando la API pública de GDBrowser…';
+ const button=test?$('#testProxy'):$('#searchLevels');button.disabled=true;
+ if(test){
+  $('#levelStatus').textContent='Probando conexión con Boomlings y GD Proxy…';
+  try{const data=await apiRequest('test',{});$('#levelStatus').textContent='¡API conectada! Servidor: '+String(data.server||'Geometry Dash')+'. Respuesta recibida; muestras: '+(data.sampleCount||0)+'.'}
+  catch(err){$('#levelStatus').textContent='No se pudo conectar: '+err.message}
+  finally{button.disabled=false}
+  return;
+ }
+ if(!q){setStatus('Escribe el nombre de un nivel o su ID.');button.disabled=false;return}
+ $('#levelResults').replaceChildren();$('#levelStatus').textContent='Buscando en los servidores de Geometry Dash…';
  try{
   if(/^\d+$/.test(q)){await onlineLevel(q);return}
-  const r=await fetch('https://gdbrowser.com/api/search/'+encodeURIComponent(q)+'?count=10',{headers:{Accept:'application/json'}});
-  if(!r.ok)throw new Error('HTTP '+r.status);const list=await r.json();if(!Array.isArray(list)||!list.length)throw new Error('No se encontraron niveles.');
+  const list=await apiRequest('search',{q});
+  if(!Array.isArray(list)||!list.length)throw new Error('No se encontraron niveles con ese nombre. Prueba otro texto o un ID numérico.');
   $('#levelStatus').textContent='Resultados recibidos: '+list.length;
   list.forEach(l=>{const card=document.createElement('div');card.className='level-result';const b=document.createElement('b');b.textContent=(l.name||'Nivel')+' · ID '+l.id;const sm=document.createElement('small');sm.textContent='Creador: '+(l.author||'desconocido')+' · Descargas: '+(l.downloads||0)+' · '+(l.difficulty||'Sin dificultad');const btn=document.createElement('button');btn.textContent='DESCARGAR Y JUGAR';btn.addEventListener('click',()=>onlineLevel(String(l.id),l.name));card.append(b,sm,btn);$('#levelResults').append(card)})
- }catch(err){$('#levelStatus').textContent='La API no respondió desde este navegador: '+err.message+'. Puedes cargar un JSON que ya tengas.'}
+ }catch(err){$('#levelStatus').textContent='No se pudo buscar el nivel: '+err.message}
  finally{button.disabled=false}
 }
 async function onlineLevel(id,name){
- $('#levelStatus').textContent='Descargando nivel '+id+' desde GDBrowser…';
- try{const r=await fetch('https://gdbrowser.com/api/level/'+encodeURIComponent(id)+'?download=1',{headers:{Accept:'application/json'}});if(!r.ok)throw new Error('HTTP '+r.status);const p=await r.json();await loadPayload(p,name||p.name||('Nivel '+id),id,'GDBrowser API');$('#levelStatus').textContent='Nivel cargado: '+S.objects.length+' objetos.'}
- catch(e){$('#levelStatus').textContent='No se pudo descargar el nivel '+id+': '+e.message+'. Carga un JSON descargado anteriormente si la API bloquea CORS.'}
+ $('#levelStatus').textContent='Descargando nivel '+id+' desde los servidores de Geometry Dash…';
+ try{const p=await apiRequest('download',{id});await loadPayload(p,name||p.name||('Nivel '+id),id,p.source||'Boomlings / GD Proxy');$('#levelStatus').textContent='Nivel cargado: '+S.objects.length+' objetos.'}
+ catch(e){$('#levelStatus').textContent='No se pudo descargar el nivel '+id+': '+e.message+'. Comprueba el dominio de API o carga un archivo local.'}
 }
 $('#load').addEventListener('click',()=>{const f=$('#file').files[0],u=$('#url').value.trim(),m=$('#music');if(musicUrl){URL.revokeObjectURL(musicUrl);musicUrl=null}if(f){musicUrl=URL.createObjectURL(f);m.src=musicUrl;$('#musicStatus').textContent='Archivo cargado: '+f.name}else if(/^https?:\/\//i.test(u)){m.src=u;$('#musicStatus').textContent='URL cargada'}else{setStatus('Selecciona un archivo de audio o pega una URL directa.');return}m.load();m.oncanplay=()=>$('#musicStatus').textContent='Canción lista';m.onerror=()=>$('#musicStatus').textContent='No se pudo cargar; prueba con un archivo local.'});
 $('#play').addEventListener('click',()=>{const m=$('#music');if(!m.src){setStatus('Carga una canción primero.');return}if(m.paused)m.play().then(()=>$('#musicStatus').textContent='Reproduciendo').catch(()=>$('#musicStatus').textContent='No se pudo reproducir');else{m.pause();$('#musicStatus').textContent='En pausa'}});
