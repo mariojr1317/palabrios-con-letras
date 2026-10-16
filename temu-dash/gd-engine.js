@@ -12,14 +12,15 @@ const PORTALS={
   200:['speed',.7,'#63a7ff'],201:['speed',.9,'#e9f1ff'],202:['speed',1.1,'#ffad45'],203:['speed',1.3,'#ff73a9'],1334:['speed',1.6,'#c96aff'],
   286:['dual',1,'#ffe45a'],287:['dual',0,'#4b9dff'],747:['teleport',0,'#4b9dff'],749:['teleport',0,'#ffe45a']
 };
-const HAZARDS=new Set([8,9,39,61,88,89,98,103,135,144,145,151,152,153,154,155,156,1701,1702,1711,1712,1713,1714,1715,1716,1717,1718,1719,1720,1721,1722,1723,1724,1725,1726,1727,1728,1729,1730,1731,1732,1733,1734,1735,1736,243,244,363,364,365,366,367,368,397,398,399,421,422,446,447,667,675,676,677,720,768,918,989,991,1705,1706,1707,1708,1709,1710]);
+const HAZARDS=new Set([8,9,39,61,88,89,98,103,135,144,145,151,152,153,154,155,156,1701,1702,1703,1711,1712,1713,1714,1715,1716,1717,1718,1719,1720,1721,1722,1723,1724,1725,1726,1727,1728,1729,1730,1731,1732,1733,1734,1735,1736,243,244,363,364,365,366,367,368,397,398,399,421,422,446,447,667,675,676,677,720,768,918,989,991,1705,1706,1707,1708,1709,1710]);
 const SAWS=new Set([88,89,98,918,1705,1706,1707,1734,1735,1736]);
 const CIRCLE_HAZARDS=new Set([...SAWS,1728,1729,1702]);
+const WIDE_RECT_HAZARDS=new Set([421,422,768,1725,1726,1727]);
 const SAW_RADII={88:21.6,89:32.3,98:12,918:24,1702:15,1705:21.6,1706:32.3,1707:12,1728:15,1729:15,1734:32,1735:17.51,1736:12};
 const SLOPES=new Set([289,291,294,295,305,307,326,327,349,351,371,372,665,666,1338,1339,1743,1744,1745,1746,1747,1748,1749,1750]);
 const SLOPE_WIDE=new Set([291,295,307,351,364,367,372,666,1339,1718,1724,1744,1746,1748,1750]);
 const SLOPE_HAZARDS=new Set([363,364,366,367,989,991,1717,1718,1723,1724,1732,1733]);
-const RECT_HAZARDS=new Set([9,243,244,365,368,421,422,667,720,768,1715,1716,1719,1720,1721,1722,1725,1726,1727,1730,1731]);
+const RECT_HAZARDS=new Set([9,243,244,365,368,421,422,667,720,768,1701,1711,1712,1713,1714,1715,1716,1719,1720,1721,1722,1725,1726,1727,1730,1731]);
 const ONE_WAY_SOLIDS=new Set([143]);
 const SOLIDS=new Set([1,2,3,4,5,6,7,40,62,63,64,65,66,68,69,70,71,72,73,74,75,76,77,78,80,81,82,83,90,91,92,93,94,95,96,116,117,118,119,120,121,122,143,146,147,1903]);
 const ORBS={36:['jump',1,'#ffe45c'],141:['jump',.66,'#ff70de'],84:['gravity',-1,'#58aaff'],1022:['gravity',1,'#65ff78'],1333:['jump',1.25,'#ff5252'],1330:['gravity',1,'#292d3d'],1704:['dash',1,'#62ff61'],1751:['dash',-1,'#ff5a8a']};
@@ -100,8 +101,8 @@ function drawBlock(o,x,y,size){
 }
 function drawHazard(o,x,y,z){
  ctx.save();ctx.translate(x,y);ctx.rotate((o.r||0)*Math.PI/180);
- if(SLOPE_HAZARDS.has(o.id)){ctx.fillStyle='#ff4f84';ctx.strokeStyle='#ffd6e0';ctx.lineWidth=1.5;ctx.beginPath();ctx.moveTo(-z/2,z/2);ctx.lineTo(z/2,z/2);ctx.lineTo(z/2,-z/2);ctx.closePath();ctx.fill();ctx.stroke();}
- else if(RECT_HAZARDS.has(o.id)){ctx.fillStyle='#ff4f84';ctx.strokeStyle='#ffd6e0';ctx.lineWidth=1.5;ctx.fillRect(-z/2,-z/2,z,z);ctx.strokeRect(-z/2,-z/2,z,z);}
+ if(SLOPE_HAZARDS.has(o.id)){const w=SLOPE_WIDE.has(o.id)?z*2:z;ctx.fillStyle='#ff4f84';ctx.strokeStyle='#ffd6e0';ctx.lineWidth=1.5;ctx.beginPath();ctx.moveTo(-w/2,z/2);ctx.lineTo(w/2,z/2);ctx.lineTo(w/2,-z/2);ctx.closePath();ctx.fill();ctx.stroke();}
+ else if(RECT_HAZARDS.has(o.id)){const w=WIDE_RECT_HAZARDS.has(o.id)?z*2:z;ctx.fillStyle='#ff4f84';ctx.strokeStyle='#ffd6e0';ctx.lineWidth=1.5;ctx.fillRect(-w/2,-z/2,w,z);ctx.strokeRect(-w/2,-z/2,w,z);}
  else if(SAWS.has(o.id)){ctx.rotate(S.time*3);ctx.fillStyle='#ff4f84';ctx.strokeStyle='#ffd6e0';ctx.lineWidth=2;ctx.beginPath();for(let i=0;i<24;i++){const a=i*Math.PI/12,r=(i%2?z*.36:z*.51),xx=Math.cos(a)*r,yy=Math.sin(a)*r;i?ctx.lineTo(xx,yy):ctx.moveTo(xx,yy)}ctx.closePath();ctx.fill();ctx.stroke();ctx.fillStyle='#1b2442';ctx.beginPath();ctx.arc(0,0,z*.18,0,Math.PI*2);ctx.fill();}
  else if(CIRCLE_HAZARDS.has(o.id)){ctx.fillStyle='#ff4f84';ctx.strokeStyle='#ffd6e0';ctx.lineWidth=2;ctx.beginPath();ctx.arc(0,0,z*.46,0,Math.PI*2);ctx.fill();ctx.stroke();}
  else{ctx.fillStyle='#ff4fc8';ctx.strokeStyle='#ffd0f1';ctx.lineWidth=1.5;ctx.beginPath();if(o.fy){ctx.moveTo(-z/2,-z/2);ctx.lineTo(z/2,-z/2);ctx.lineTo(0,z/2)}else{ctx.moveTo(-z/2,z/2);ctx.lineTo(z/2,z/2);ctx.lineTo(0,-z/2)}ctx.closePath();ctx.fill();ctx.stroke()}
@@ -233,7 +234,7 @@ function circleRectHit(player,cx,cy,radius){
 function hazardHit(o,player){
  if(CIRCLE_HAZARDS.has(o.id))return circleRectHit(player,o.x,o.y,sawRadius(o));
  if(SLOPE_HAZARDS.has(o.id))return polygonRectHit(player,slopeVertices(o));
- if(RECT_HAZARDS.has(o.id))return orientedRectHit(player,{cx:o.x,cy:o.y,hx:15*(o.scale||1),hy:15*(o.scale||1),angle:(o.r||0)*Math.PI/180});
+ if(RECT_HAZARDS.has(o.id))return orientedRectHit(player,{cx:o.x,cy:o.y,hx:(WIDE_RECT_HAZARDS.has(o.id)?30:15)*(o.scale||1),hy:15*(o.scale||1),angle:(o.r||0)*Math.PI/180});
  // Ordinary spikes use a rectangular hitbox elevated about one quarter of their art height.
  return orientedRectHit(player,spikeGeometry(o));
 }
@@ -472,7 +473,7 @@ function drawHitboxes(){
   }else if(SLOPE_HAZARDS.has(o.id)){
    const pts=slopeVertices(o).map(v=>[PLAYER_X+v.x-S.x,FLOOR-v.y]);ctx.strokeStyle='#ff647c';ctx.beginPath();ctx.moveTo(pts[0][0],pts[0][1]);pts.slice(1).forEach(v=>ctx.lineTo(v[0],v[1]));ctx.closePath();ctx.stroke();
   }else if(RECT_HAZARDS.has(o.id)){
-   const z=30*(o.scale||1),a=(o.r||0)*Math.PI/180,c=Math.cos(a),s=Math.sin(a);const pts=[[-z/2,-z/2],[z/2,-z/2],[z/2,z/2],[-z/2,z/2]].map(v=>[sx+v[0]*c-v[1]*s,sy-v[0]*s-v[1]*c]);ctx.strokeStyle='#ff647c';ctx.beginPath();ctx.moveTo(pts[0][0],pts[0][1]);pts.slice(1).forEach(v=>ctx.lineTo(v[0],v[1]));ctx.closePath();ctx.stroke();
+   const z=30*(o.scale||1),w=WIDE_RECT_HAZARDS.has(o.id)?z*2:z,a=(o.r||0)*Math.PI/180,c=Math.cos(a),s=Math.sin(a);const pts=[[-w/2,-z/2],[w/2,-z/2],[w/2,z/2],[-w/2,z/2]].map(v=>[sx+v[0]*c-v[1]*s,sy-v[0]*s-v[1]*c]);ctx.strokeStyle='#ff647c';ctx.beginPath();ctx.moveTo(pts[0][0],pts[0][1]);pts.slice(1).forEach(v=>ctx.lineTo(v[0],v[1]));ctx.closePath();ctx.stroke();
   }else if(HAZARDS.has(o.id)){
    const g=spikeGeometry(o),a=g.angle,c=Math.cos(a),s=Math.sin(a);
    ctx.strokeStyle='#ff647c';
