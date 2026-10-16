@@ -19,9 +19,10 @@ El juego ahora incluye interfaz para buscar niveles reales y descargar sus datos
 2. Copia el contenido completo de `worker.js` en el editor del Worker y despliega.
 3. Copia la URL pública del Worker (por ejemplo, la que termina en `.workers.dev`).
 4. Abre Temu Dash y pega esa URL en **URL del proxy de niveles**.
-5. Escribe el nombre de un nivel y pulsa **BUSCAR NIVELES**. En cada resultado, usa **DESCARGAR DATOS DEL NIVEL** para guardar el JSON recibido.
+5. Pulsa **PROBAR CONEXIÓN**. Debe confirmar que el Worker está activo y que Geometry Dash respondió.
+6. Si la prueba sale bien, escribe el nombre de un nivel y pulsa **BUSCAR NIVELES**. En cada resultado, usa **DESCARGAR DATOS DEL NIVEL** para guardar el JSON recibido.
 
-El Worker consulta los endpoints comunitariamente documentados `getGJLevels21.php` y `downloadGJLevel.php`. El protocolo de Geometry Dash no es una API pública estable; el servidor puede cambiar o rechazar solicitudes, y el proxy puede necesitar mantenimiento.
+El Worker consulta los endpoints comunitariamente documentados `getGJLevels21.php` y `downloadGJLevel.php`, enviando versión de juego y versión binaria, e incluye `/api/health` para diagnosticar la conexión. El protocolo de Geometry Dash no es una API pública estable; el servidor puede cambiar o rechazar solicitudes, y el proxy puede necesitar mantenimiento.
 
 ## Limitación importante
 Buscar y descargar los datos del servidor **no significa que los niveles ya se puedan jugar dentro de Temu Dash**. Los datos descargados usan el formato de Geometry Dash y aún necesitan decodificarse y convertirse a los objetos del motor de este prototipo. La canción asociada tampoco siempre es accesible o autorizada. La demo no inventa resultados ni afirma que estas partes estén terminadas.
