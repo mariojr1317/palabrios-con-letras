@@ -189,10 +189,15 @@ function sawRadius(o){
  const base=SAW_RADII[o.id];
  return base ? base*(o.scale||1) : 12*(o.scale||1);
 }
-function spikeGeometry(o){
- const z=30*(o.scale||1),theta=-(o.r||0)*Math.PI/180+(o.fy?Math.PI:0);
- const offset=(o.fy?-1:1)*z*.125;
- return {cx:o.x-Math.sin(theta)*offset,cy:o.y+Math.cos(theta)*offset,hx:z*.5,hy:z*.375,angle:theta};
+function spikeVertices(o,inset=2){
+ const z=30*(o.scale||1),half=z/2,m=inset*(o.scale||1),angle=-(o.r||0)*Math.PI/180;
+ // El dibujo del pincho es un triángulo. Reducimos solo un poco el contorno
+ // para respetar el margen visual de la hitbox original de Geometry Dash.
+ const local=o.fy
+  ? [{x:-half+m,y:half-m},{x:half-m,y:half-m},{x:0,y:-half+m}]
+  : [{x:-half+m,y:-half+m},{x:half-m,y:-half+m},{x:0,y:half-m}];
+ const c=Math.cos(angle),s=Math.sin(angle);
+ return local.map(p=>({x:o.x+p.x*c-p.y*s,y:o.y+p.x*s+p.y*c}));
 }
 function slopeVertices(o){
  const scale=o.scale||1,w=(SLOPE_WIDE.has(o.id)?60:30)*scale,h=30*scale,fx=o.fx?-1:1,fy=o.fy?-1:1;
@@ -235,8 +240,8 @@ function hazardHit(o,player){
  if(CIRCLE_HAZARDS.has(o.id))return circleRectHit(player,o.x,o.y,sawRadius(o));
  if(SLOPE_HAZARDS.has(o.id))return polygonRectHit(player,slopeVertices(o));
  if(RECT_HAZARDS.has(o.id))return orientedRectHit(player,{cx:o.x,cy:o.y,hx:(WIDE_RECT_HAZARDS.has(o.id)?30:15)*(o.scale||1),hy:15*(o.scale||1),angle:-(o.r||0)*Math.PI/180});
- // Ordinary spikes use a rectangular hitbox elevated about one quarter of their art height.
- return orientedRectHit(player,spikeGeometry(o));
+ // Ordinary spikes use a triangle inset slightly from the visible art, not a small rectangle.
+ return polygonRectHit(player,spikeVertices(o));
 }
 function portalBox(o){
  return {l:o.x-12*(o.scale||1),r:o.x+12*(o.scale||1),b:o.y-30*(o.scale||1),t:o.y+30*(o.scale||1)};
@@ -479,11 +484,8 @@ function drawHitboxes(){
   }else if(RECT_HAZARDS.has(o.id)){
    const z=30*(o.scale||1),w=WIDE_RECT_HAZARDS.has(o.id)?z*2:z,a=(o.r||0)*Math.PI/180,c=Math.cos(a),s=Math.sin(a);const pts=[[-w/2,-z/2],[w/2,-z/2],[w/2,z/2],[-w/2,z/2]].map(v=>[sx+v[0]*c-v[1]*s,sy-v[0]*s-v[1]*c]);ctx.strokeStyle='#ff647c';ctx.beginPath();ctx.moveTo(pts[0][0],pts[0][1]);pts.slice(1).forEach(v=>ctx.lineTo(v[0],v[1]));ctx.closePath();ctx.stroke();
   }else if(HAZARDS.has(o.id)){
-   const g=spikeGeometry(o),a=g.angle,c=Math.cos(a),s=Math.sin(a);
-   ctx.strokeStyle='#ff647c';
-   const scx=sx+(g.cx-o.x),scy=FLOOR-g.cy;
-   const cs=[[-g.hx,-g.hy],[g.hx,-g.hy],[g.hx,g.hy],[-g.hx,g.hy]].map(v=>[scx+v[0]*c-v[1]*s,scy-v[0]*s-v[1]*c]);
-   ctx.beginPath();ctx.moveTo(cs[0][0],cs[0][1]);cs.slice(1).forEach(v=>ctx.lineTo(v[0],v[1]));ctx.closePath();ctx.stroke();
+   const pts=spikeVertices(o).map(v=>[PLAYER_X+v.x-S.x,FLOOR-v.y]);
+   ctx.strokeStyle='#ff647c';ctx.beginPath();ctx.moveTo(pts[0][0],pts[0][1]);pts.slice(1).forEach(v=>ctx.lineTo(v[0],v[1]));ctx.closePath();ctx.stroke();
   }else if(SOLIDS.has(o.id)||ONE_WAY_SOLIDS.has(o.id)){
    const b=obox(o);ctx.strokeStyle='#77b8ff';ctx.strokeRect(sx-(o.x-b.l),FLOOR-b.t,b.r-b.l,b.t-b.b);
   }else if(SLOPES.has(o.id)||SLOPE_HAZARDS.has(o.id)){
@@ -561,7 +563,7 @@ async function onlineLevel(id,name){
 $('#load').addEventListener('click',()=>{const f=$('#file').files[0],u=$('#url').value.trim(),m=$('#music');if(musicUrl){URL.revokeObjectURL(musicUrl);musicUrl=null}if(f){musicUrl=URL.createObjectURL(f);m.src=musicUrl;$('#musicStatus').textContent='Archivo cargado: '+f.name}else if(/^https?:\/\//i.test(u)){m.src=u;$('#musicStatus').textContent='URL cargada'}else{setStatus('Selecciona un archivo de audio o pega una URL directa.');return}m.load();m.oncanplay=()=>$('#musicStatus').textContent='Canción lista';m.onerror=()=>$('#musicStatus').textContent='No se pudo cargar; prueba con un archivo local.'});
 $('#play').addEventListener('click',()=>{const m=$('#music');if(!m.src){setStatus('Carga una canción primero.');return}if(m.paused)m.play().then(()=>$('#musicStatus').textContent='Reproduciendo').catch(()=>$('#musicStatus').textContent='No se pudo reproducir');else{m.pause();$('#musicStatus').textContent='En pausa'}});
 $('#stop').addEventListener('click',()=>{$('#music').pause();$('#music').currentTime=0;$('#musicStatus').textContent='Canción detenida'});
-window.TemuDash={loadPayload,parseObjects,ids:{portals:PORTALS,hazards:Array.from(HAZARDS),orbs:ORBS,pads:PADS},physics:{start:reset,press:press,release:releaseInput,step:physicsTick,box:box,hazardHit:hazardHit,speedDx:speedDx,cubeParams:cubePhysics,state:()=>({x:S.x,y:S.y,vy:S.vy,mode:S.mode,gravity:S.gravity,speed:S.speed,size:S.size,grounded:S.grounded,progress:S.progress})}};
+window.TemuDash={loadPayload,parseObjects,ids:{portals:PORTALS,hazards:Array.from(HAZARDS),orbs:ORBS,pads:PADS},physics:{start:reset,press:press,release:releaseInput,step:physicsTick,box:box,hazardHit:hazardHit,spikeVertices:spikeVertices,speedDx:speedDx,cubeParams:cubePhysics,state:()=>({x:S.x,y:S.y,vy:S.vy,mode:S.mode,gravity:S.gravity,speed:S.speed,size:S.size,grounded:S.grounded,progress:S.progress})}};
 try{$('#showHitboxes').addEventListener('change',()=>draw());}catch(_){}
 demo('Entrega Express');S.active=false;S.tries=0;stats();setStatus('Motor con simulación fija de 240 Hz. Pulsa JUGAR / REINTENTAR para empezar.');requestAnimationFrame(frame);
 })();
