@@ -323,7 +323,7 @@ function handleInputTap(){
  }
  return {jumpFired,orbFired:false};
 }
-function resolveFloorAndSolids(prevY){
+function resolveFloorAndSolids(prevY,prevX,wasGrounded){
  const height=2*playerHalfY();
  const ceiling=WORLD_CEILING;
  let p=box();
@@ -338,10 +338,12 @@ function resolveFloorAndSolids(prevY){
   if(Math.abs(o.x-S.x)>playerHalfX()+objectHalfSize(o).hx+6)continue;
   const b=obox(o);
   if(SLOPES.has(o.id)){
-   const vertices=slopeVertices(o),yr=slopeYRangeAtX(vertices,S.x);
+   const vertices=slopeVertices(o),yr=slopeYRangeAtX(vertices,S.x),oldYr=slopeYRangeAtX(vertices,prevX);
    if(!yr||p.r<=yr.minX||p.l>=yr.maxX)continue;
-   if(S.gravity>0&&S.vy<=0&&prevY>=yr.max-.05&&S.y<=yr.max+.05){S.y=yr.max;S.vy=0;S.grounded=true;p=box();continue;}
-   if(S.gravity<0&&S.vy>=0&&prevY+height<=yr.min+.05&&S.y+height>=yr.min-.05){S.y=yr.min-height;S.vy=0;S.grounded=true;p=box();continue;}
+   const ridingFloor=wasGrounded&&((oldYr&&Math.abs(prevY-oldYr.max)<=1.5)||(!oldYr&&yr.max<=prevY+height+1))&&Math.abs(prevY-yr.max)<=height+3;
+   const ridingCeiling=wasGrounded&&((oldYr&&Math.abs(prevY+height-oldYr.min)<=1.5)||(!oldYr&&yr.min>=prevY-1&&yr.min<=prevY+height+1))&&Math.abs((prevY+height)-yr.min)<=height+3;
+   if(S.gravity>0&&S.vy<=0&&(ridingFloor||(oldYr&&prevY>=oldYr.max-.05&&S.y<=yr.max+.05)||(prevY>=yr.max-.05&&S.y<=yr.max+.05))){S.y=yr.max;S.vy=0;S.grounded=true;p=box();continue;}
+   if(S.gravity<0&&S.vy>=0&&(ridingCeiling||(oldYr&&prevY+height<=oldYr.min+.05&&S.y+height>=yr.min-.05)||(prevY+height<=yr.min+.05&&S.y+height>=yr.min-.05))){S.y=yr.min-height;S.vy=0;S.grounded=true;p=box();continue;}
    if(polygonRectHit(p,vertices)){die('colisión con pendiente #'+o.id);return false;}
    continue;
   }
@@ -365,11 +367,12 @@ function physicsTick(){
  if(!S.active||S.paused)return;
  S.time+=STEP;
  const prevY=S.y;
+ const prevX=S.x;
  const dx=speedDx(S.speed);
+ const wasGrounded=S.grounded;
  S.x+=dx;
 
  // A mode/trigger input is consumed once, on a deterministic 240-Hz tick.
- const wasGrounded=S.grounded;
  const {jumpFired}=handleInputTap();
  const currentMode=S.mode;
  S.grounded=(currentMode==='spider'&&jumpFired&&wasGrounded);
@@ -451,7 +454,7 @@ function physicsTick(){
   const close=Math.abs(o.x-player.cx)<player.hx+45;
   if(close&&hazardHit(o,player)){die('hitbox peligrosa #'+o.id);return;}
  }
- if(!resolveFloorAndSolids(prevY))return;
+ if(!resolveFloorAndSolids(prevY,prevX,wasGrounded))return;
  if(S.y < -100 || S.y > WORLD_CEILING+100){die('saliste de la zona jugable');return}
  S.progress=Math.max(0,Math.min(100,(S.x-90)/(S.width-90)*100));
  if(S.x>=S.width-30){
