@@ -135,7 +135,7 @@ function physics(dt){
  if(S.gravity<0&&S.y+h>=ceiling){S.y=ceiling-h;S.vy=0;S.grounded=true}
  for(let i=0;i<S.objects.length;i++){
   const o=S.objects[i],dx=o.x-S.x;
-  if(Math.abs(dx)<25&&PORTALS[o.id])portal(o,i);
+  if(Math.abs(dx)<25&&Math.abs(o.y-(S.y+SIZE*S.size/2))<70&&PORTALS[o.id])portal(o,i);
   if(COINS.has(o.id)&&Math.abs(dx)<22&&Math.abs(o.y-(S.y+h/2))<45){const k='coin'+i;if(!S.activated.has(k)){S.activated.add(k);S.coins++;stats()}}
   if(PADS[o.id]){const k='pad'+i;if(hit(box(),obox(o))&&!S.pads.has(k)){S.pads.add(k);const v=PADS[o.id];if(v[0]==='jump'){S.vy=610*v[1]*S.gravity;S.grounded=false}else{S.gravity=v[1];S.vy=0;S.grounded=false}}}
   if(HAZARDS.has(o.id)&&hit(box(),obox(o))){die('objeto peligroso #'+o.id);return}
@@ -152,7 +152,7 @@ function physics(dt){
 }
 function frame(t){if(!lastTime)lastTime=t;const dt=Math.min(.035,(t-lastTime)/1000||0);lastTime=t;if(S.active&&!S.paused)physics(dt);draw();requestAnimationFrame(frame)}
 function press(){
- if(!S.active||S.paused)return;S.lastInput=true;
+ if(!S.active||S.paused)return;if(['ball','spider','swing'].includes(S.mode))S.lastInput=true;
  if((S.mode==='cube'||S.mode==='robot')&&S.grounded){S.vy=(S.mode==='robot'?520:600)*S.gravity;S.grounded=false}
  else if(S.mode==='ufo'){S.vy=465*S.gravity;S.grounded=false}
  orbs()
@@ -166,7 +166,9 @@ document.querySelectorAll('.level').forEach(b=>b.addEventListener('click',()=>de
 $('#searchLevels').addEventListener('click',()=>search(false));$('#testProxy').addEventListener('click',()=>search(true));
 $('#loadLevelFile').addEventListener('change',async e=>{const f=e.target.files&&e.target.files[0];if(!f)return;try{let payload=await f.text();if(f.name.toLowerCase().endsWith('.json')){try{payload=JSON.parse(payload)}catch(_){throw new Error('El JSON está dañado')}}await loadPayload(payload,(payload&&payload.name)||f.name.replace(/\.[^.]+$/,''),(payload&&payload.id)||'','archivo local')}catch(err){setStatus('No se pudo cargar: '+err.message)}});
 async function search(test){
- const q=$('#levelQuery').value.trim();if(!q){setStatus('Escribe el nombre de un nivel o su ID.');return}
+ const q=$('#levelQuery').value.trim();
+ if(!q&&test){const probe=$('#testProxy');probe.disabled=true;$('#levelStatus').textContent='Probando la API de GDBrowser…';try{const pr=await fetch('https://gdbrowser.com/api/level/128',{headers:{Accept:'application/json'}});if(!pr.ok)throw new Error('HTTP '+pr.status);await pr.json();$('#levelStatus').textContent='La API respondió correctamente. Escribe el nombre o ID de un nivel para buscarlo.'}catch(err){$('#levelStatus').textContent='No se pudo acceder a GDBrowser desde este navegador: '+err.message+'. Puede ser una restricción CORS del servidor.'}finally{probe.disabled=false}return}
+ if(!q){setStatus('Escribe el nombre de un nivel o su ID.');return}
  const button=test?$('#testProxy'):$('#searchLevels');button.disabled=true;$('#levelResults').replaceChildren();$('#levelStatus').textContent='Consultando la API pública de GDBrowser…';
  try{
   if(/^\d+$/.test(q)){await onlineLevel(q);return}
@@ -186,5 +188,5 @@ $('#load').addEventListener('click',()=>{const f=$('#file').files[0],u=$('#url')
 $('#play').addEventListener('click',()=>{const m=$('#music');if(!m.src){setStatus('Carga una canción primero.');return}if(m.paused)m.play().then(()=>$('#musicStatus').textContent='Reproduciendo').catch(()=>$('#musicStatus').textContent='No se pudo reproducir');else{m.pause();$('#musicStatus').textContent='En pausa'}});
 $('#stop').addEventListener('click',()=>{$('#music').pause();$('#music').currentTime=0;$('#musicStatus').textContent='Canción detenida'});
 window.TemuDash={loadPayload,parseObjects,ids:{portals:PORTALS,hazards:Array.from(HAZARDS),orbs:ORBS,pads:PADS}};
-demo('Entrega Express');requestAnimationFrame(frame);
+demo('Entrega Express');S.active=false;S.tries=0;stats();setStatus('Nivel local listo. Pulsa JUGAR / REINTENTAR cuando quieras empezar.');requestAnimationFrame(frame);
 })();
