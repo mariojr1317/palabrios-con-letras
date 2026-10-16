@@ -66,4 +66,5 @@ La API puede bloquear llamadas cross-origin (CORS, límites de uso o indisponibi
 - Decodificación Base64/GZIP: https://github.com/gd-programming/gd.docs/blob/main/docs/topics/levelstring_encoding_decoding.md
 - Enumeraciones de modos, portales, pads y orbes: https://gdpy.readthedocs.io/en/master/_modules/gd/api/enums.html
 - Parser JavaScript comunitario GDParse: https://github.com/HectLM/GDParse
+- Catálogo comunitario de nombres de IDs (muchos objetos y variantes): https://flowvix.github.io/gd-info-explorer/ids
 - GDBrowser API y fuente: https://gdbrowser.com/api ; https://github.com/yoann256/GDBrowser-Maintained
