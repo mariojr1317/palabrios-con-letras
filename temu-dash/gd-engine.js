@@ -12,14 +12,14 @@ const PORTALS={
   200:['speed',.7,'#63a7ff'],201:['speed',.9,'#e9f1ff'],202:['speed',1.1,'#ffad45'],203:['speed',1.3,'#ff73a9'],1334:['speed',1.6,'#c96aff'],
   286:['dual',1,'#ffe45a'],287:['dual',0,'#4b9dff'],747:['teleport',0,'#4b9dff'],749:['teleport',0,'#ffe45a']
 };
-const HAZARDS=new Set([8,9,39,61,88,89,98,103,135,144,145,151,152,153,154,155,156,392,394,397,398,399,400,401,402,403,404,405,406,918,1715,1734,1735]);
-const SAWS=new Set([88,89,98,392,394,397,398,399,400,401,402,403,404,405,406,918,1734,1735]);
-const SAW_RADII={88:21.6,89:32.3,98:12,918:24,1734:32,1735:17.51};
+const HAZARDS=new Set([8,9,39,61,88,89,98,103,135,144,145,151,152,153,154,155,156,392,394,397,398,399,400,401,402,403,404,405,406,918,1705,1706,1707,1708,1709,1710,1715,1719,1730,1734,1735,1736]);
+const SAWS=new Set([88,89,98,392,394,397,398,399,400,401,402,403,404,405,406,918,1705,1706,1707,1708,1709,1710,1734,1735]);
+const SAW_RADII={88:21.6,89:32.3,98:12,918:24,1705:21.6,1706:32.3,1707:12,1708:12,1709:12,1710:12,1734:32,1735:17.51};
 const ONE_WAY_SOLIDS=new Set([143]);
-const SOLIDS=new Set([1,2,3,4,5,6,7,40,62,63,64,65,66,68,69,70,71,72,73,74,75,76,77,78,80,81,82,83,90,91,92,93,94,95,96,116,117,118,119,120,121,122,143,146,147]);
+const SOLIDS=new Set([1,2,3,4,5,6,7,40,62,63,64,65,66,68,69,70,71,72,73,74,75,76,77,78,80,81,82,83,90,91,92,93,94,95,96,116,117,118,119,120,121,122,143,146,147,1903]);
 const ORBS={36:['jump',1,'#ffe45c'],141:['jump',.66,'#ff70de'],84:['gravity',-1,'#58aaff'],1022:['gravity',1,'#65ff78'],1333:['jump',1.25,'#ff5252'],1330:['gravity',1,'#292d3d'],1704:['dash',1,'#62ff61'],1751:['dash',-1,'#ff5a8a']};
 const PADS={35:['jump',1,'#ffe45c'],140:['jump',.7,'#ff70de'],67:['gravity',-1,'#58aaff'],1332:['jump',1.25,'#ff5252']};
-const COINS=new Set([1329,142,1324]);
+const COINS=new Set([1329,142]);
 const S={objects:[],name:'Entrega Express',id:'',width:2700,x:90,y:0,vy:0,mode:'cube',gravity:1,speed:1,size:1,grounded:true,active:false,paused:false,dead:false,complete:false,held:false,pendingPress:false,progress:0,tries:0,coins:0,time:0,activated:new Set(),usedOrbs:new Set(),pads:new Set(),lastInput:false,dual:false,robotHoverTicks:0,robotHoverEnded:false,source:'demo'};
 let musicUrl=null,lastTime=0,accumulator=0;
 function setStatus(t){$('#gameStatus').textContent=t}
@@ -126,13 +126,13 @@ function draw(){
 }
 function playerHalfX(){
  const scale=S.size;
- if(S.mode==='wave')return 5*scale;
+ if(S.mode==='wave')return S.size<1?2:5;
  if(S.mode==='spider')return 13.5*scale;
  return 15*scale;
 }
 function playerHalfY(){
  const scale=S.size;
- if(S.mode==='wave')return 5*scale;
+ if(S.mode==='wave')return S.size<1?2:5;
  if(S.mode==='spider')return 13.5*scale;
  return 15*scale;
 }
@@ -142,7 +142,7 @@ function box(){
 }
 function objectHalfSize(o){
  const size=30*(o.scale||1);
- if(o.id===143)return {hx:15*(o.scale||1),hy:7.5*(o.scale||1)};
+ if(o.id===143)return {hx:15*(o.scale||1),hy:15*(o.scale||1)};
  return {hx:size/2,hy:size/2};
 }
 function obox(o){
@@ -339,7 +339,7 @@ function physicsTick(){
   const accel=S.held?(pv<=switchAt?holdStrong:holdWeak):(pv>switchAt?releaseStrong:releaseWeak);
   pv=qVy(pv+accel);
   const factor=S.size<1?.85:1;
-  pv=clamp(pv,-6.4/factor,8/factor);
+  pv=clamp(pv,mini?-7.529:-6.4,mini?9.412:8);
   S.vy=pv*S.gravity;
   S.y+=Y_SCALE*S.vy;
  }else if(currentMode==='ufo'){
