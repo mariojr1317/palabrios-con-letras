@@ -39,9 +39,17 @@ Los IDs de modo y portales se basan en enumeraciones comunitarias de gd.py. Temu
 ### Bloques, peligros, orbes y pads
 | ID | Uso reconocido |
 |---:|---|
-| 1–7 | Familias básicas de bloques |
-| 8, 39, 103 | Variantes de pincho |
-| 88, 89, 98; 1705–1707 | Sierras grandes/medianas/pequeñas y sus IDs antiguos |
+| 1–7, 62–96, 116–122 | Familias básicas, negras, mecánicas y de ladrillo |
+| 160–176, 192, 195–197, 207–220 | Bloques de franjas, metal, coloreados y losas |
+| 247–282, 369–370, 467–472, 653–664, 734–738 | Familias de bloque coloreado, transparente, contorno y mosaico |
+| 916–917 | Bloques coloreados de tamaño fraccionario |
+| 289–372, 665–674, 713–716, 730–733, 762–763, 771–772, 877–896, 1014–1015, 1033–1034, 1338–1339, 1743–1750 | Pendientes y pendientes anchas reconocidas (colisión triangular aproximada) |
+| 8, 39, 103, 177–179, 216–218, 392, 458–459 | Pinchos normales, pequeños, de hielo, coloreados, diminutos e invisibles |
+| 88, 89, 98; 154–156; 1705–1707; 1734–1736 | Sierras, ruedas de pinchos y cuchillas dentadas (colisión circular aproximada) |
+| 397–399 / 1708–1710 | Cuchillas de pincho negras; no se clasifican como sierras |
+| 144–145 | Pinchos invisibles con colisión activa |
+| 446–447, 667, 720, 768, 918–919, 991, 1327–1328 | Peligros negros redondos/cuadrados, bestia grande, pit animado, esquina de pendiente y monstruos |
+| 363–368, 421–422, 1711–1733 | Variantes de hazards negros, pozos, bordes y pendientes peligrosas |
 | 35, 140, 1332 | Pads de salto amarillo, rosa y rojo |
 | 67 | Pad de gravedad azul |
 | 36, 141 | Orbes de salto amarillo y rosa |
@@ -59,7 +67,7 @@ El motor ahora usa pasos físicos fijos de 1/240 s, redondeo de velocidad vertic
 
 El cubo usa impulsos aproximados de salto 10.62 / 11.18 / 11.42 / 11.23 / 11.23 para esas velocidades, y gravedad por tick 0.212 / 0.216 / 0.215 / 0.216 / 0.216. Mini usa un impulso de salto 0.8×. Para la nave y UFO se añaden sus parámetros de empuje/gravedad y límites verticales; el robot aplica 0.9× gravedad, 0.5× salto y una flotación limitada; bola, araña y swing tienen cambios específicos de gravedad. Véase physics_reference en object-ids.json para la tabla.
 
-En colisiones separamos familias: bloques rectangulares, un subconjunto de pendientes triangulares, pinchos con rectángulos rotados aproximados y sierras/objetos redondos con colisión círculo-rectángulo. El catálogo comunitario muestra que varios IDs negros son alias por versión y que los IDs 397–399 son hojas de pincho, no sierras. Esto mejora el modelo, pero todavía no equivale a las hitboxes de cada objeto y cada modo del juego original.
+En colisiones separamos familias: bloques rectangulares (con tamaños aproximados para losas y bloques pequeños), un grupo ampliado de pendientes triangulares, pinchos con **rectángulos pequeños y rotados** (más pequeños que el dibujo y desplazados hacia la punta) y sierras/ruedas con colisión circular. Los IDs 144, 145, 459 y 740–742 son objetos invisibles: su dibujo se oculta, pero la colisión permanece. El catálogo comunitario identifica los IDs 397–399 como cuchillas de pincho y el ID 918 como Large Beast Hazard, no una sierra. Esto mejora la clasificación, pero todavía no equivale a las hitboxes de cada objeto y cada modo del juego original.
 
 No se implementan todavía todos los cientos/miles de objetos, bloques decorativos, triggers 2.2, shaders, cámara dinámica, gravedad local, teletransporte enlazado, dual real, checkpoints/práctica, colisiones exactas en pendientes ni sincronización musical por BPM. Los gráficos son formas geométricas propias, no los sprites originales.
 
@@ -74,4 +82,5 @@ La API puede bloquear llamadas cross-origin (CORS, límites de uso o indisponibi
 - Enumeraciones de modos, portales, pads y orbes: https://gdpy.readthedocs.io/en/master/_modules/gd/api/enums.html
 - Parser JavaScript comunitario GDParse: https://github.com/HectLM/GDParse
 - Catálogo comunitario y equivalencias de IDs por versión: https://a-zalt.github.io/gdknowledge/resources/object_ids.html
+- Catálogo comunitario amplio de objetos por ID: https://flowvix.github.io/gd-info-explorer/ids
 - GDBrowser API y fuente: https://gdbrowser.com/api ; https://github.com/yoann256/GDBrowser-Maintained
