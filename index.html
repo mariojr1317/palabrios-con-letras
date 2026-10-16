@@ -1,0 +1,115 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Temu Dash — Cubito barato, sufrimiento premium</title>
+<style>
+:root{--bg:#090d1c;--panel:#121a31;--cyan:#50f6ff;--pink:#ff4fc8;--yellow:#ffe66d;--text:#f4f7ff;--muted:#9da9c8}
+*{box-sizing:border-box}body{margin:0;background:radial-gradient(ellipse at top,#1b2450 0%,var(--bg) 65%);color:var(--text);font:15px system-ui,Segoe UI,sans-serif;min-height:100vh}
+header{max-width:1100px;margin:auto;padding:24px 20px 10px;display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap}
+.logo{font-size:clamp(25px,4vw,40px);font-weight:1000;letter-spacing:-1.5px}.logo span{color:var(--cyan);text-shadow:0 0 18px #50f6ff66}.tag{color:var(--muted);font-size:12px}
+main{max-width:1100px;margin:auto;padding:12px 20px 36px;display:grid;grid-template-columns:minmax(0,1.7fr) minmax(260px,1fr);gap:16px}
+.panel{background:linear-gradient(145deg,#17213d,#0f152a);border:1px solid #303d65;border-radius:18px;padding:16px;box-shadow:0 12px 40px #0004}
+.game-wrap{position:relative}.game-wrap canvas{display:block;width:100%;height:auto;aspect-ratio:16/9;border-radius:12px;background:#080d20;touch-action:manipulation}
+.overlay{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:20px;background:#080d20bb;border-radius:12px}
+.overlay h2{font-size:clamp(24px,4vw,42px);margin:0 0 6px}.overlay p{color:#d4dcf6;margin:0 0 16px}.hidden{display:none!important}
+button,input,select,textarea{font:inherit}button{border:0;border-radius:10px;padding:10px 14px;font-weight:800;cursor:pointer;color:#07111c;background:var(--cyan);transition:transform .12s,filter .12s}button:hover{filter:brightness(1.08);transform:translateY(-1px)}button.secondary{background:#263354;color:var(--text);border:1px solid #43527b}button.pink{background:var(--pink);color:#1b0820}button.yellow{background:var(--yellow)}button:disabled{opacity:.45;cursor:not-allowed;transform:none}
+.controls{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}.stats{display:flex;gap:12px;flex-wrap:wrap;color:var(--muted);font-size:13px;margin:12px 0}.stats b{color:var(--text)}
+h3{margin:0 0 12px;font-size:17px}.section{margin-bottom:20px}.level-list{display:grid;gap:8px}.level{display:flex;align-items:center;justify-content:space-between;gap:8px;background:#0b1227;border:1px solid #29365c;border-radius:12px;padding:10px}.level small{display:block;color:var(--muted);margin-top:3px}.level button{padding:7px 10px;font-size:12px}
+label{display:block;color:var(--muted);font-size:12px;margin:9px 0 5px}input,select,textarea{width:100%;background:#090f22;border:1px solid #354365;color:var(--text);border-radius:9px;padding:10px}textarea{min-height:74px;resize:vertical}.two{display:grid;grid-template-columns:1fr 1fr;gap:8px}.notice{color:var(--muted);font-size:12px;line-height:1.5}.status{padding:10px;border-radius:10px;background:#0a1227;border:1px solid #2d3c62;font-size:13px;line-height:1.5}.status strong{color:var(--yellow)}.pill{display:inline-block;padding:3px 8px;border-radius:999px;background:#263354;color:var(--cyan);font-size:11px;font-weight:800}
+footer{max-width:1100px;margin:0 auto;padding:0 20px 30px;color:var(--muted);font-size:12px}
+@media(max-width:800px){main{grid-template-columns:1fr;padding:10px 12px 28px}header{padding:18px 12px 8px}.panel{padding:12px}.logo{font-size:29px}}
+</style>
+</head>
+<body>
+<header><div><div class="logo">TEMU <span>DASH</span> 💸</div><div class="tag">Cubito barato. Pinchos caros. Skill opcional.</div></div><span class="pill">DEMO JUGABLE v0.1</span></header>
+<main>
+<section class="panel">
+ <div class="game-wrap">
+  <canvas id="game" width="960" height="540" aria-label="Juego Temu Dash"></canvas>
+  <div class="overlay" id="overlay"><h2 id="overlayTitle">¿Listo para sufrir?</h2><p id="overlayText">Espacio, clic o toca la pantalla para saltar.</p><button id="startBtn">JUGAR ▶</button></div>
+ </div>
+ <div class="stats"><span>Progreso: <b id="progress">0%</b></span><span>Intentos: <b id="attempts">0</b></span><span>Mejor: <b id="best">0%</b></span><span>Monedas: <b id="coins">0</b></span></div>
+ <div class="controls"><button id="retry" class="yellow">↻ Reiniciar</button><button id="pause" class="secondary">Ⅱ Pausar</button><button id="mute" class="secondary">♫ Sonido: off</button></div>
+ <p class="notice">Controles: <b>Espacio / ↑ / W / clic / toque</b> para saltar. Mantén el ritmo y evita los pinchos. Este primer nivel es local y funciona sin instalar nada.</p>
+</section>
+<aside class="panel">
+ <div class="section"><h3>🌐 Niveles de la comunidad</h3><div id="levelList" class="level-list"></div><div class="controls"><button id="export" class="secondary">Exportar niveles</button><button id="importBtn" class="secondary">Importar JSON</button><input type="file" id="importFile" accept=".json,application/json" hidden></div><p class="notice">Los niveles se guardan en este navegador. La lista online real requiere desplegar un servidor y una base de datos.</p></div>
+ <div class="section"><h3>🧱 Mini editor</h3><label for="levelName">Nombre del nivel</label><input id="levelName" maxlength="36" value="Mi nivel Temu">
+ <div class="two"><div><label for="difficulty">Dificultad</label><select id="difficulty"><option>Fácil</option><option selected>Normal</option><option>Difícil</option><option>Insano</option></select></div><div><label for="pattern">Patrón</label><select id="pattern"><option value="easy">Saltitos</option><option value="mixed" selected>Mezclado</option><option value="spicy">Muchos pinchos</option></select></div></div>
+ <label for="levelDesc">Descripción (opcional)</label><textarea id="levelDesc" maxlength="140" placeholder="¿Qué tan mal está diseñado?"></textarea>
+ <div class="controls"><button id="createLevel">Crear nivel</button><button id="playCustom" class="pink">Probar nivel</button></div>
+ <p class="notice">Puedes crear niveles sencillos, guardarlos y compartirlos exportando el JSON. No sube nada a internet por sí solo.</p></div>
+ <div class="section"><h3>🔌 Conexión online</h3><div class="status"><strong>Estado: modo local</strong><br>Los servidores oficiales de Geometry Dash no ofrecen una conexión web pública y documentada para este clon. No voy a simular que está conectado. Primero dejamos listo el juego; después se puede añadir backend propio o investigar una integración compatible y autorizada.</div></div>
+</aside>
+</main>
+<footer>Proyecto independiente de fans; no está afiliado a RobTop ni a Geometry Dash. Nombre y contenido originales. Hecho para navegador de escritorio y Chromebook.</footer>
+<script>
+(()=>{
+const canvas=document.querySelector('#game'),ctx=canvas.getContext('2d');
+const W=canvas.width,H=canvas.height,ground=430;
+const $=id=>document.getElementById(id);
+let running=false,dead=false,paused=false,frame=0,attempts=0,progress=0,best=0,coins=0,muted=true,audio=null;
+let player={x:150,y:ground-36,size:36,vy:0,onGround:true,rot:0};
+let level={id:'starter',name:'Entrega Express',difficulty:'Fácil',desc:'Primer envío: cuidado con los pinchos.',pattern:'mixed',length:5200};
+let obstacles=[],particles=[],speed=6.2,world=0;
+const defaultLevels=[
+{id:'starter',name:'Entrega Express',difficulty:'Fácil',desc:'Primer envío: cuidado con los pinchos.',pattern:'mixed',length:5200},
+{id:'refund',name:'Reembolso Imposible',difficulty:'Normal',desc:'El paquete llegó con pinchos.',pattern:'spicy',length:6100},
+{id:'discount',name:'Descuento del 99%',difficulty:'Difícil',desc:'Barato no significa fácil.',pattern:'easy',length:5700}
+];
+let userLevels=[];try{userLevels=JSON.parse(localStorage.getItem('temuDashLevels')||'[]')}catch(e){}
+function save(){localStorage.setItem('temuDashLevels',JSON.stringify(userLevels))}
+function beep(freq=440,dur=.07){if(muted)return;try{audio=audio||new(window.AudioContext||window.webkitAudioContext)();let o=audio.createOscillator(),g=audio.createGain();o.frequency.value=freq;o.type='square';g.gain.value=.035;o.connect(g);g.connect(audio.destination);o.start();g.gain.exponentialRampToValueAtTime(.001,audio.currentTime+dur);o.stop(audio.currentTime+dur)}catch(e){}}
+function buildObstacles(){
+ obstacles=[];let x=650,idx=0;while(x<level.length+W){let pat=level.pattern;
+  let gap=pat==='spicy'?175+Math.random()*65:pat==='easy'?330+Math.random()*90:240+Math.random()*100;
+  if(idx%5===3&&pat!=='spicy')gap+=120;
+  let count=pat==='spicy'?(Math.random()<.4?2:1):(pat==='easy'?1:(Math.random()<.28?2:1));
+  obstacles.push({x,y:ground-40,w:38*count,h:40,count,coin:idx%4===1,passed:false});
+  x+=gap;idx++;
+ }
+}
+function reset(start=true){frame=0;world=0;progress=0;dead=false;paused=false;player={x:150,y:ground-36,size:36,vy:0,onGround:true,rot:0};particles=[];speed=6.2;buildObstacles();$('progress').textContent='0%';$('overlay').classList.toggle('hidden',start);$('overlayTitle').textContent='¿Listo para sufrir?';$('overlayText').textContent='Espacio, clic o toca la pantalla para saltar.';if(start){running=true;attempts++;$('attempts').textContent=attempts;requestAnimationFrame(loop)}else running=false;}
+function jump(){if(!running){reset(true);return}if(dead||paused)return;if(player.onGround){player.vy=-14.5;player.onGround=false;beep(620)}}
+function end(win=false){running=false;dead=!win;best=Math.max(best,progress);$('best').textContent=best+'%';$('overlay').classList.remove('hidden');$('overlayTitle').textContent=win?'¡NIVEL COMPLETADO! 🎉':'¡TE ESTAFARON! 💥';$('overlayText').textContent=win?'Completaste '+level.name+' con '+coins+' monedas.':'Llegaste al '+progress+'%. No hay reembolso.';$('startBtn').textContent=win?'JUGAR OTRA VEZ':'REINTENTAR';beep(win?880:110,.18)}
+function draw(){
+ ctx.clearRect(0,0,W,H);
+ let grad=ctx.createLinearGradient(0,0,0,H);grad.addColorStop(0,'#111b3a');grad.addColorStop(1,'#080c1b');ctx.fillStyle=grad;ctx.fillRect(0,0,W,H);
+ ctx.strokeStyle='#26365c';ctx.lineWidth=1;let offset=-(world*.45%48);for(let x=offset;x<W;x+=48){ctx.beginPath();ctx.moveTo(x,0);ctx.lineTo(x,H);ctx.stroke()}for(let y=24;y<H;y+=48){ctx.beginPath();ctx.moveTo(0,y);ctx.lineTo(W,y);ctx.stroke()}
+ for(let i=0;i<24;i++){let x=(i*137-world*.22)%(W+30);if(x<0)x+=W+30;ctx.fillStyle='#8cfaff55';ctx.fillRect(x,(i*79)%310,2,2)}
+ ctx.fillStyle='#121d3b';ctx.fillRect(0,ground,W,H-ground);ctx.fillStyle='#50f6ff';ctx.fillRect(0,ground,W,4);
+ obstacles.forEach(o=>{let x=o.x-world;if(x<-80||x>W+80)return;ctx.fillStyle='#ff4fc8';ctx.beginPath();for(let n=0;n<o.count;n++){let xx=x+n*38;ctx.moveTo(xx,ground);ctx.lineTo(xx+19,ground-39);ctx.lineTo(xx+38,ground);ctx.closePath()}ctx.fill();ctx.strokeStyle='#ffb2ed';ctx.lineWidth=2;ctx.stroke();if(o.coin){ctx.fillStyle='#ffe66d';ctx.beginPath();ctx.arc(x+o.w/2,ground-94,11,0,Math.PI*2);ctx.fill();ctx.strokeStyle='#fff2a6';ctx.stroke()}})
+ // Player cube
+ ctx.save();ctx.translate(player.x+player.size/2,player.y+player.size/2);ctx.rotate(player.rot);ctx.fillStyle='#50f6ff';ctx.shadowColor='#50f6ff';ctx.shadowBlur=18;ctx.fillRect(-18,-18,36,36);ctx.shadowBlur=0;ctx.strokeStyle='#d9ffff';ctx.lineWidth=3;ctx.strokeRect(-13,-13,26,26);ctx.fillStyle='#10162a';ctx.fillRect(-10,-5,6,6);ctx.fillRect(4,-5,6,6);ctx.restore();
+ ctx.fillStyle='#fff';ctx.font='bold 17px system-ui';ctx.fillText(level.name,24,35);ctx.fillStyle='#9da9c8';ctx.font='13px system-ui';ctx.fillText(level.difficulty+' • TEMU ORIGINAL',24,56);
+ let barW=260;ctx.fillStyle='#253454';ctx.fillRect(W-barW-24,25,barW,10);ctx.fillStyle='#50f6ff';ctx.fillRect(W-barW-24,25,barW*progress/100,10);
+}
+function loop(){
+ if(!running)return;if(paused){draw();return}
+ frame++;world+=speed;player.vy+=.72;player.y+=player.vy;
+ if(player.y+player.size>=ground){player.y=ground-player.size;player.vy=0;player.onGround=true;player.rot=Math.round(player.rot/(Math.PI/2))*(Math.PI/2)}else{player.onGround=false;player.rot+=.095}
+ obstacles.forEach(o=>{let x=o.x-world;if(!o.passed&&x+o.w<player.x){o.passed=true}
+  // forgiving collision box
+  if(x<player.x+player.size-7&&x+o.w>player.x+7&&player.y+player.size>ground-36){end(false)}
+  if(o.coin&&!o.coinTaken&&x+o.w/2>player.x-8&&x+o.w/2<player.x+player.size+8&&player.y<ground-55){o.coinTaken=true;coins++;$('coins').textContent=coins;beep(1000)}
+ });
+ progress=Math.min(100,Math.floor(world/level.length*100));$('progress').textContent=progress+'%';
+ if(progress>=100){end(true);draw();return}
+ draw();requestAnimationFrame(loop)
+}
+function listLevels(){let all=[...defaultLevels,...userLevels];$('levelList').innerHTML='';all.forEach(l=>{let row=document.createElement('div');row.className='level';let info=document.createElement('div');let name=document.createElement('b');name.textContent=l.name;let sm=document.createElement('small');sm.textContent=l.difficulty+' · '+(l.desc||'Nivel de la comunidad');info.append(name,sm);let b=document.createElement('button');b.textContent='JUGAR';b.onclick=()=>{level={...l,length:l.length||5200};reset(true)};row.append(info,b);$('levelList').append(row)})}
+function createLevel(){let p=$('pattern').value;let l={id:'user-'+Date.now(),name:$('levelName').value.trim()||'Nivel sin nombre',difficulty:$('difficulty').value,desc:$('levelDesc').value.trim(),pattern:p,length:5200};userLevels.unshift(l);userLevels=userLevels.slice(0,30);save();listLevels();level=l;reset(true)}
+$('startBtn').onclick=()=>{level=level||defaultLevels[0];reset(true)};
+$('retry').onclick=()=>reset(true);
+$('pause').onclick=()=>{if(!running)return;paused=!paused;$('pause').textContent=paused?'▶ Continuar':'Ⅱ Pausar';if(!paused)requestAnimationFrame(loop);else draw()};
+$('mute').onclick=()=>{muted=!muted;$('mute').textContent='♫ Sonido: '+(muted?'off':'on')};
+$('createLevel').onclick=createLevel;$('playCustom').onclick=()=>{let l={id:'preview',name:$('levelName').value.trim()||'Mi nivel',difficulty:$('difficulty').value,desc:$('levelDesc').value,pattern:$('pattern').value,length:5200};level=l;reset(true)};
+$('export').onclick=()=>{let blob=new Blob([JSON.stringify(userLevels,null,2)],{type:'application/json'}),a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='temu-dash-levels.json';a.click();URL.revokeObjectURL(a.href)};
+$('importBtn').onclick=()=>$('importFile').click();$('importFile').onchange=async e=>{try{let data=JSON.parse(await e.target.files[0].text());if(!Array.isArray(data))throw Error();userLevels=[...data.filter(x=>x&&typeof x.name==='string'&&['easy','mixed','spicy'].includes(x.pattern)),...userLevels].slice(0,30);save();listLevels()}catch(err){alert('Ese JSON no parece ser un paquete válido de niveles Temu Dash.')}e.target.value=''};
+window.addEventListener('keydown',e=>{if(['Space','ArrowUp','KeyW'].includes(e.code)){e.preventDefault();if(e.repeat)return;jump()}if(e.code==='Escape'&&running){paused=!paused;if(!paused)requestAnimationFrame(loop)}});
+canvas.addEventListener('pointerdown',e=>{e.preventDefault();jump()});
+level=defaultLevels[0];listLevels();draw();$('best').textContent=best+'%';
+})();
+</script>
+</body></html>
