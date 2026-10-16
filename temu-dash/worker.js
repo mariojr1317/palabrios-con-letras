@@ -33,21 +33,20 @@ function parseLevels(raw) {
   const parts = raw.split("#");
   const fields = (parts[0] || "").split("|");
   const out = [];
-  for (let i = 0; i + 1 < fields.length; i += 2) {
+  for (const field of fields) {
     const obj = {};
-    const pairs = fields[i].split(":");
+    const pairs = field.split(":");
     for (let j = 0; j + 1 < pairs.length; j += 2) obj[pairs[j]] = pairs[j + 1];
-    if (Object.keys(obj).length) out.push({
-      id: obj[1] || "",
+    if (obj[1]) out.push({
+      id: obj[1],
       name: obj[2] || "Nivel sin nombre",
       description: obj[3] || "",
       version: obj[5] || "",
-      difficulty: obj[9] || "",
+      creatorId: obj[6] || "",
+      difficulty: obj[8] || "",
       downloads: obj[10] || "0",
       officialSongId: obj[12] || "0",
-      gameVersion: obj[13] || "",
-      creator: obj[creator] || "",
-      raw: obj
+      gameVersion: obj[13] || ""
     });
   }
   return out;
