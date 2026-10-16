@@ -43,21 +43,41 @@
     "4": "basic block family 4",
     "5": "basic block family 5",
     "6": "basic block family 6",
-    "7": "basic block family 7"
+    "7": "basic block family 7",
+    "40": "black gradient single slab",
+    "68": "wavy black single slab",
+    "143": "breakable brick",
+    "146": "invisible square",
+    "147": "invisible slab",
+    "62-66": "wavy black slab pieces",
+    "69-78": "cross/beveled block family",
+    "80-83": "mechanical/grid block family",
+    "90-96": "black block family",
+    "116-122": "brick block family"
   },
   "hazards": {
     "8": "spike",
+    "9": "non-colorable spike / black pit hazard",
     "39": "spike variant",
+    "61": "wavy black pit hazard",
     "88": "common saw object",
     "89": "saw variant",
     "98": "saw/object variant; context-sensitive",
-    "103": "spike variant"
+    "103": "spike variant",
+    "135": "thorn black pit hazard",
+    "144": "invisible spike",
+    "145": "small invisible spike",
+    "1715": "pit object",
+    "151-153": "spike rods",
+    "154-156": "spike wheels"
   },
   "portals": {
     "10": "blue gravity portal",
     "11": "yellow gravity portal",
     "12": "cube portal",
     "13": "ship portal",
+    "45": "orange mirror portal",
+    "46": "blue mirror portal",
     "47": "ball portal",
     "99": "green size portal (normal-size family)",
     "101": "pink mini portal",
@@ -74,7 +94,7 @@
     "749": "yellow teleport portal (linking not implemented)",
     "1331": "spider portal",
     "1334": "fastest speed portal",
-    "1933": "swing portal"
+    "1933": "swing portal (community mapping; verify against target GD version)"
   },
   "pads": {
     "35": "yellow jump pad",
@@ -101,5 +121,11 @@
     "Many object IDs vary by version or are contextual variants.",
     "The full catalogue includes lots of decorative blocks, triggers, spawn objects, items and objects added in 2.2.",
     "Unimplemented objects are rendered as markers and do not receive invented collisions."
-  ]
+  ],
+  "sources": [
+    "https://flowvix.github.io/gd-info-explorer/ids",
+    "https://gdpy.readthedocs.io/en/master/_modules/gd/api/enums.html",
+    "https://github.com/gd-programming/gd.docs/blob/main/docs/resources/client/level-components/level-object.md"
+  ],
+  "catalogue_url": "https://flowvix.github.io/gd-info-explorer/ids"
 }
