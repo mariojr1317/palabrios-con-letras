@@ -67,9 +67,25 @@
     "135": "thorn black pit hazard",
     "144": "invisible spike",
     "145": "small invisible spike",
-    "1715": "pit object",
+    "1701": "Spiked square hazard",
+    "1702": "Spiked circle hazard (circular collision approximation)",
+    "1703": "Triangle hazard",
+    "1715": "Spike black pit hazard",
+    "1716": "Spike black hazard",
+    "1722": "Wavy black hazard",
     "151-153": "spike rods",
-    "154-156": "spike wheels"
+    "154-156": "spike wheels",
+    "1705-1707": "Large, medium and small saw blades (aliases for IDs 88/89/98)",
+    "1708-1710": "Large, medium and small spike blades (not saws)",
+    "1711-1714": "Thorn colored pit hazards",
+    "1717-1718": "Spike black slope / wide-slope hazards",
+    "1719-1721": "Wavy black pit and edge hazards",
+    "1723-1724": "Wavy black slope / wide-slope hazards",
+    "1725-1727": "Wide spike black hazard variants",
+    "1728-1729": "Round black hazard variants (circular approximation)",
+    "1730-1731": "Square black hazard / edge hazard",
+    "1732-1733": "Square black slope / corner hazard",
+    "1734-1736": "Large, medium and small gear blades (circular approximation)"
   },
   "portals": {
     "10": "blue gravity portal",
@@ -113,9 +129,8 @@
     "1751": "reverse dash orb"
   },
   "coins": {
-    "142": "coin-related object in some catalogs",
-    "1324": "coin-related object in some catalogs",
-    "1329": "coin object in community catalogs"
+    "142": "Secret coin histórica, usada en niveles oficiales; el juego la elimina de niveles no oficiales",
+    "1329": "User coin (moneda de nivel de usuario)"
   },
   "limitations": [
     "Many object IDs vary by version or are contextual variants.",
@@ -127,5 +142,117 @@
     "https://gdpy.readthedocs.io/en/master/_modules/gd/api/enums.html",
     "https://github.com/gd-programming/gd.docs/blob/main/docs/resources/client/level-components/level-object.md"
   ],
-  "catalogue_url": "https://flowvix.github.io/gd-info-explorer/ids"
+  "catalogue_url": "https://flowvix.github.io/gd-info-explorer/ids",
+  "physics_reference": {
+    "target_version": "Geometry Dash 2.2081 (Windows/Steam), constantes recuperadas por ingeniería inversa comunitaria; no son parámetros oficiales publicados por RobTop",
+    "tick_hz": 240,
+    "vertical_position_scale_per_tick": 0.225,
+    "vertical_velocity_rounding_digits": 3,
+    "horizontal_delta_units_per_tick": {
+      "0.7": 1.0465,
+      "0.9": 1.29825044,
+      "1.1": 1.6142578,
+      "1.3": 1.95,
+      "1.6": 2.4
+    },
+    "cube": {
+      "jump_impulse_by_speed": {
+        "0.7": 10.62,
+        "0.9": 11.18,
+        "1.1": 11.42,
+        "1.3": 11.23,
+        "1.6": 11.23
+      },
+      "gravity_per_tick_by_speed": {
+        "0.7": 0.212,
+        "0.9": 0.216,
+        "1.1": 0.215,
+        "1.3": 0.216,
+        "1.6": 0.216
+      },
+      "terminal_velocity": 15,
+      "mini_jump_multiplier": 0.8
+    },
+    "player_half_hitbox_units": {
+      "full_cube_ship_ufo_ball_robot_swing": 15,
+      "mini_cube_size_scale": 0.6,
+      "mini_cube_half_extent": 9,
+      "spider_full": 13.5,
+      "spider_mini": 8.1,
+      "wave_full": 5,
+      "wave_mini": 2
+    },
+    "other_modes": {
+      "ship_full": {
+        "hold_strong": 0.108,
+        "hold_weak": 0.086,
+        "release_strong": -0.103,
+        "release_weak": -0.069,
+        "vy_min": -6.4,
+        "vy_max": 8
+      },
+      "ship_mini": {
+        "hold_strong": 0.127,
+        "hold_weak": 0.101,
+        "release_strong": -0.122,
+        "release_weak": -0.081,
+        "vy_min": -7.529,
+        "vy_max": 9.412
+      },
+      "ufo_full": {
+        "gravity_weak": -0.086,
+        "gravity_strong": -0.129,
+        "flap_target": 7,
+        "vy_min": -6.4,
+        "vy_max": 8
+      },
+      "ufo_mini": {
+        "gravity_weak": -0.101,
+        "gravity_strong": -0.152,
+        "flap_target": 6.8,
+        "vy_min": -7.529,
+        "vy_max": 9.412
+      },
+      "robot": {
+        "gravity_multiplier": 0.9,
+        "jump_multiplier": 0.5,
+        "maximum_hover_ticks": 67
+      },
+      "ball": {
+        "gravity_per_tick": 0.129,
+        "gravity_flip_launch_velocity": 3.354
+      },
+      "spider": {
+        "gravity_multiplier": 0.6,
+        "full_half_extent": 13.5,
+        "mini_half_extent": 8.1,
+        "only_teleports_when_grounded": true
+      },
+      "swing": {
+        "gravity_per_tick_full": 0.086,
+        "gravity_per_tick_mini": 0.129,
+        "velocity_multiplier_on_flip": -0.8
+      }
+    },
+    "collision_models_in_this_project": {
+      "ordinary_spike": "rotated approximate rectangle shifted up by about one quarter of sprite height; individual spike IDs are not all calibrated",
+      "saw": "circle-vs-player-rectangle using approximate ID-specific radii",
+      "black_hazards": "classified by community IDs into rectangle, slope triangle, or circle families; many less common variants remain approximate",
+      "blocks": "axis-aligned rectangles with top landing and side/bottom collision",
+      "slopes": "triangle polygon collision and approximate surface landing for a subset of IDs",
+      "orbs_portals_pads": "activation areas are approximate; ring/orb and trigger behavior is not fully replicated"
+    },
+    "sources": [
+      "https://github.com/gdsolver/gdsolver",
+      "https://github.com/GDCreatorSchool/gdcs2/blob/main/content/docs/guides/the-editor/static-objects.md",
+      "https://a-zalt.github.io/gdknowledge/resources/object_ids.html",
+      "https://gdpy.readthedocs.io/en/master/_modules/gd/api/enums.html"
+    ]
+  },
+  "notes": [
+    "IDs with aliases are version-dependent; the old and new ID can refer to the same visual family.",
+    "IDs 397, 398 and 399 map to spike blades 1708, 1709 and 1710; they must not be treated as saws.",
+    "IDs 406–408 are grass decorations in the community catalogue and are not deadly hazards.",
+    "Unimplemented IDs are rendered as markers and do not receive an invented collision response."
+  ]
 }
