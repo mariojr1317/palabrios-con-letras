@@ -190,7 +190,7 @@ function sawRadius(o){
  return base ? base*(o.scale||1) : 12*(o.scale||1);
 }
 function spikeGeometry(o){
- const z=30*(o.scale||1),theta=(o.r||0)*Math.PI/180+(o.fy?Math.PI:0);
+ const z=30*(o.scale||1),theta=-(o.r||0)*Math.PI/180+(o.fy?Math.PI:0);
  const offset=(o.fy?-1:1)*z*.125;
  return {cx:o.x-Math.sin(theta)*offset,cy:o.y+Math.cos(theta)*offset,hx:z*.5,hy:z*.375,angle:theta};
 }
@@ -234,7 +234,7 @@ function circleRectHit(player,cx,cy,radius){
 function hazardHit(o,player){
  if(CIRCLE_HAZARDS.has(o.id))return circleRectHit(player,o.x,o.y,sawRadius(o));
  if(SLOPE_HAZARDS.has(o.id))return polygonRectHit(player,slopeVertices(o));
- if(RECT_HAZARDS.has(o.id))return orientedRectHit(player,{cx:o.x,cy:o.y,hx:(WIDE_RECT_HAZARDS.has(o.id)?30:15)*(o.scale||1),hy:15*(o.scale||1),angle:(o.r||0)*Math.PI/180});
+ if(RECT_HAZARDS.has(o.id))return orientedRectHit(player,{cx:o.x,cy:o.y,hx:(WIDE_RECT_HAZARDS.has(o.id)?30:15)*(o.scale||1),hy:15*(o.scale||1),angle:-(o.r||0)*Math.PI/180});
  // Ordinary spikes use a rectangular hitbox elevated about one quarter of their art height.
  return orientedRectHit(player,spikeGeometry(o));
 }
@@ -366,7 +366,7 @@ function resolveFloorAndSolids(prevY,prevX,wasGrounded){
 function physicsTick(){
  if(!S.active||S.paused)return;
  S.time+=STEP;
- const prevY=S.y;
+ let prevY=S.y;
  const prevX=S.x;
  const dx=speedDx(S.speed);
  const wasGrounded=S.grounded;
@@ -375,6 +375,7 @@ function physicsTick(){
  // A mode/trigger input is consumed once, on a deterministic 240-Hz tick.
  const {jumpFired}=handleInputTap();
  const currentMode=S.mode;
+ if(currentMode==='spider'&&jumpFired)prevY=S.y;
  S.grounded=(currentMode==='spider'&&jumpFired&&wasGrounded);
  if(currentMode==='wave'){
   const rise=(S.held?1:-1)*(S.gravity<0?-1:1)*dx;
