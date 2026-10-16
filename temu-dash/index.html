@@ -52,7 +52,9 @@ hr{border:0;border-top:1px solid #303d65;margin:16px 0}
 </section>
 <aside class="panel">
 <h2>🌐 Buscar niveles de Geometry Dash</h2>
-<p class="muted">La búsqueda usa la API de GDBrowser; ya no necesitas una clave de corsproxy.dev. La disponibilidad depende de que la API permita solicitudes desde GitHub Pages.</p>
+<p class="muted">Ya no dependemos de la API de GDBrowser. La búsqueda usa un pequeño servidor puente que consulta Boomlings y prueba GD Proxy como respaldo.</p>
+<label>Servidor API (opcional)</label><input id="apiBase" type="url" placeholder="https://tu-proyecto.vercel.app">
+<p class="muted">Si abres el juego en Vercel, deja este campo vacío. Si estás en GitHub Pages, despliega la carpeta temu-dash en Vercel y pega aquí el dominio que te asignen. No necesitas ninguna API key.</p>
 <label>Nombre de nivel o ID numérico</label><input id="levelQuery" type="search" placeholder="Ej. Stereo Madness o 128">
 <div class="row"><button id="searchLevels">BUSCAR / CARGAR ID</button><button id="testProxy" class="secondary">PROBAR API</button></div>
 <div id="levelStatus" class="status">Busca un nivel por nombre o pega su ID. También puedes cargar los JSON de niveles que descargaste anteriormente.</div>
