@@ -12,9 +12,13 @@ const PORTALS={
   200:['speed',.7,'#63a7ff'],201:['speed',.9,'#e9f1ff'],202:['speed',1.1,'#ffad45'],203:['speed',1.3,'#ff73a9'],1334:['speed',1.6,'#c96aff'],
   286:['dual',1,'#ffe45a'],287:['dual',0,'#4b9dff'],747:['teleport',0,'#4b9dff'],749:['teleport',0,'#ffe45a']
 };
-const HAZARDS=new Set([8,9,39,61,88,89,98,103,135,144,145,151,152,153,154,155,156,392,394,397,398,399,400,401,402,403,404,405,406,918,1705,1706,1707,1708,1709,1710,1715,1719,1730,1734,1735,1736]);
-const SAWS=new Set([88,89,98,392,394,397,398,399,400,401,402,403,404,405,406,918,1705,1706,1707,1708,1709,1710,1734,1735]);
-const SAW_RADII={88:21.6,89:32.3,98:12,918:24,1705:21.6,1706:32.3,1707:12,1708:12,1709:12,1710:12,1734:32,1735:17.51};
+const HAZARDS=new Set([8,9,39,61,88,89,98,103,135,144,145,151,152,153,154,155,156,363,364,365,366,367,368,392,394,397,398,399,400,401,402,403,404,405,406,918,1705,1706,1707,1708,1709,1710,1715,1716,1717,1718,1719,1722,1723,1724,1726,1727,1728,1729,1730,1731,1732,1733,1734,1735,1736]);
+const SAWS=new Set([88,89,98,392,394,397,398,399,400,401,402,403,404,405,406,918,1705,1706,1707,1708,1709,1710,1728,1729,1734,1735,1736]);
+const SAW_RADII={88:21.6,89:32.3,98:12,918:24,1705:21.6,1706:32.3,1707:12,1708:12,1709:12,1710:12,1728:15,1729:15,1734:32,1735:17.51,1736:12};
+const SLOPES=new Set([289,291,294,295,305,307,326,327,349,351,371,372,665,666,1338,1339,1743,1744,1745,1746,1747,1748,1749,1750]);
+const SLOPE_WIDE=new Set([291,295,307,351,372,666,1339,1744,1746,1748,1750]);
+const SLOPE_HAZARDS=new Set([363,364,366,367,1717,1718,1722,1723,1724,1732,1733]);
+const RECT_HAZARDS=new Set([9,1715,1719,1730,1731,365,368,1726,1727]);
 const ONE_WAY_SOLIDS=new Set([143]);
 const SOLIDS=new Set([1,2,3,4,5,6,7,40,62,63,64,65,66,68,69,70,71,72,73,74,75,76,77,78,80,81,82,83,90,91,92,93,94,95,96,116,117,118,119,120,121,122,143,146,147,1903]);
 const ORBS={36:['jump',1,'#ffe45c'],141:['jump',.66,'#ff70de'],84:['gravity',-1,'#58aaff'],1022:['gravity',1,'#65ff78'],1333:['jump',1.25,'#ff5252'],1330:['gravity',1,'#292d3d'],1704:['dash',1,'#62ff61'],1751:['dash',-1,'#ff5a8a']};
@@ -95,9 +99,15 @@ function drawBlock(o,x,y,size){
 }
 function drawHazard(o,x,y,z){
  ctx.save();ctx.translate(x,y);ctx.rotate((o.r||0)*Math.PI/180);
- if(SAWS.has(o.id)){ctx.rotate(S.time*3);ctx.fillStyle='#ff4f84';ctx.strokeStyle='#ffd6e0';ctx.lineWidth=2;ctx.beginPath();for(let i=0;i<24;i++){const a=i*Math.PI/12,r=(i%2?z*.36:z*.51),xx=Math.cos(a)*r,yy=Math.sin(a)*r;i?ctx.lineTo(xx,yy):ctx.moveTo(xx,yy)}ctx.closePath();ctx.fill();ctx.stroke();ctx.fillStyle='#1b2442';ctx.beginPath();ctx.arc(0,0,z*.18,0,Math.PI*2);ctx.fill();}
+ if(SLOPE_HAZARDS.has(o.id)){ctx.fillStyle='#ff4f84';ctx.strokeStyle='#ffd6e0';ctx.lineWidth=1.5;ctx.beginPath();ctx.moveTo(-z/2,z/2);ctx.lineTo(z/2,z/2);ctx.lineTo(z/2,-z/2);ctx.closePath();ctx.fill();ctx.stroke();}
+ else if(RECT_HAZARDS.has(o.id)){ctx.fillStyle='#ff4f84';ctx.strokeStyle='#ffd6e0';ctx.lineWidth=1.5;ctx.fillRect(-z/2,-z/2,z,z);ctx.strokeRect(-z/2,-z/2,z,z);}
+ else if(SAWS.has(o.id)){ctx.rotate(S.time*3);ctx.fillStyle='#ff4f84';ctx.strokeStyle='#ffd6e0';ctx.lineWidth=2;ctx.beginPath();for(let i=0;i<24;i++){const a=i*Math.PI/12,r=(i%2?z*.36:z*.51),xx=Math.cos(a)*r,yy=Math.sin(a)*r;i?ctx.lineTo(xx,yy):ctx.moveTo(xx,yy)}ctx.closePath();ctx.fill();ctx.stroke();ctx.fillStyle='#1b2442';ctx.beginPath();ctx.arc(0,0,z*.18,0,Math.PI*2);ctx.fill();}
  else{ctx.fillStyle='#ff4fc8';ctx.strokeStyle='#ffd0f1';ctx.lineWidth=1.5;ctx.beginPath();if(o.fy){ctx.moveTo(-z/2,-z/2);ctx.lineTo(z/2,-z/2);ctx.lineTo(0,z/2)}else{ctx.moveTo(-z/2,z/2);ctx.lineTo(z/2,z/2);ctx.lineTo(0,-z/2)}ctx.closePath();ctx.fill();ctx.stroke()}
  ctx.restore()
+}
+function drawSlope(o){
+ const pts=slopeVertices(o).map(v=>[PLAYER_X+v.x-S.x,FLOOR-v.y]);
+ ctx.fillStyle='#4563aa';ctx.strokeStyle='#8befff';ctx.lineWidth=1.5;ctx.beginPath();ctx.moveTo(pts[0][0],pts[0][1]);pts.slice(1).forEach(p=>ctx.lineTo(p[0],p[1]));ctx.closePath();ctx.fill();ctx.stroke();
 }
 function drawObj(o){
  if(!onScreen(o))return;const x=PLAYER_X+o.x-S.x,y=scrY(o.y),z=30*(o.scale||1),p=PORTALS[o.id];
@@ -107,6 +117,7 @@ function drawObj(o){
  if(PADS[o.id]){ctx.fillStyle=PADS[o.id][2];ctx.beginPath();ctx.moveTo(x-16,y+7);ctx.lineTo(x+16,y+7);ctx.lineTo(x+9,y-6);ctx.lineTo(x-9,y-6);ctx.closePath();ctx.fill();return}
  if(COINS.has(o.id)){ctx.strokeStyle='#ffe56a';ctx.lineWidth=4;ctx.beginPath();ctx.arc(x,y,10,0,Math.PI*2);ctx.stroke();return}
  if(SOLIDS.has(o.id)){drawBlock(o,x,y,z);return}
+ if(SLOPES.has(o.id)){drawSlope(o);return}
  ctx.fillStyle='rgba(180,194,230,.35)';ctx.fillRect(x-4,y-4,8,8)
 }
 function drawPlayer(){
@@ -142,7 +153,8 @@ function box(){
 }
 function objectHalfSize(o){
  const size=30*(o.scale||1);
- if(o.id===143)return {hx:15*(o.scale||1),hy:15*(o.scale||1)};
+ if(o.id===143)return {hx:size/2,hy:size/2};
+ if(SLOPES.has(o.id))return {hx:(SLOPE_WIDE.has(o.id)?30:15)*(o.scale||1),hy:15*(o.scale||1)};
  return {hx:size/2,hy:size/2};
 }
 function obox(o){
@@ -179,6 +191,30 @@ function spikeGeometry(o){
  const offset=(o.fy?-1:1)*z*.125;
  return {cx:o.x-Math.sin(theta)*offset,cy:o.y+Math.cos(theta)*offset,hx:z*.5,hy:z*.375,angle:theta};
 }
+function slopeVertices(o){
+ const scale=o.scale||1,w=(SLOPE_WIDE.has(o.id)?60:30)*scale,h=30*scale,fx=o.fx?-1:1,fy=o.fy?-1:1;
+ return [[-w/2,-h/2],[w/2,-h/2],[w/2,h/2]].map(v=>({x:o.x+v[0]*fx,y:o.y+v[1]*fy}));
+}
+function polygonRectHit(player,vertices){
+ const rect=[{x:player.l,y:player.b},{x:player.r,y:player.b},{x:player.r,y:player.t},{x:player.l,y:player.t}];
+ const axes=[{x:1,y:0},{x:0,y:1}];
+ for(let i=0;i<vertices.length;i++){const a=vertices[i],b=vertices[(i+1)%vertices.length],dx=b.x-a.x,dy=b.y-a.y;axes.push({x:-dy,y:dx});}
+ for(const axis of axes){const mag=Math.hypot(axis.x,axis.y)||1,ux=axis.x/mag,uy=axis.y/mag;let amin=Infinity,amax=-Infinity,bmin=Infinity,bmax=-Infinity;
+  for(const p of rect){const v=p.x*ux+p.y*uy;amin=Math.min(amin,v);amax=Math.max(amax,v);}
+  for(const p of vertices){const v=p.x*ux+p.y*uy;bmin=Math.min(bmin,v);bmax=Math.max(bmax,v);}
+  if(amax<=bmin||bmax<=amin)return false;
+ }
+ return true;
+}
+function slopeYRangeAtX(vertices,x){
+ const minX=Math.min(...vertices.map(p=>p.x)),maxX=Math.max(...vertices.map(p=>p.x)),sample=clamp(x,minX,maxX),ys=[];
+ for(let i=0;i<vertices.length;i++){
+  const a=vertices[i],b=vertices[(i+1)%vertices.length],dx=b.x-a.x;
+  if(Math.abs(dx)<1e-8){if(Math.abs(sample-a.x)<1e-7)ys.push(a.y,b.y);continue;}
+  if(sample>=Math.min(a.x,b.x)-1e-7&&sample<=Math.max(a.x,b.x)+1e-7)ys.push(a.y+(sample-a.x)*(b.y-a.y)/dx);
+ }
+ return ys.length?{min:Math.min(...ys),max:Math.max(...ys),minX,maxX}:null;
+}
 function orientedRectHit(player,shape){
  const dx=player.cx-shape.cx,dy=player.cy-shape.cy;
  const a=shape.angle||0,c=Math.cos(a),s=Math.sin(a);
@@ -194,10 +230,10 @@ function circleRectHit(player,cx,cy,radius){
 }
 function hazardHit(o,player){
  if(SAWS.has(o.id))return circleRectHit(player,o.x,o.y,sawRadius(o));
- // Most ordinary spikes use a rectangular hitbox elevated about one quarter of
- // the art's height. Variants with custom geometry still need per-ID calibration.
- const shape=spikeGeometry(o);
- return orientedRectHit(player,shape);
+ if(SLOPE_HAZARDS.has(o.id))return polygonRectHit(player,slopeVertices(o));
+ if(RECT_HAZARDS.has(o.id))return orientedRectHit(player,{cx:o.x,cy:o.y,hx:15*(o.scale||1),hy:15*(o.scale||1),angle:(o.r||0)*Math.PI/180});
+ // Ordinary spikes use a rectangular hitbox elevated about one quarter of their art height.
+ return orientedRectHit(player,spikeGeometry(o));
 }
 function portalBox(o){
  return {l:o.x-12*(o.scale||1),r:o.x+12*(o.scale||1),b:o.y-30*(o.scale||1),t:o.y+30*(o.scale||1)};
@@ -295,9 +331,17 @@ function resolveFloorAndSolids(prevY){
  }
  for(let i=0;i<S.objects.length;i++){
   const o=S.objects[i];
-  if(!SOLIDS.has(o.id)&&!ONE_WAY_SOLIDS.has(o.id))continue;
+  if(!SOLIDS.has(o.id)&&!ONE_WAY_SOLIDS.has(o.id)&&!SLOPES.has(o.id))continue;
   if(Math.abs(o.x-S.x)>playerHalfX()+objectHalfSize(o).hx+6)continue;
   const b=obox(o);
+  if(SLOPES.has(o.id)){
+   const vertices=slopeVertices(o),yr=slopeYRangeAtX(vertices,S.x);
+   if(!yr||p.r<=yr.minX||p.l>=yr.maxX)continue;
+   if(S.gravity>0&&S.vy<=0&&prevY>=yr.max-.05&&S.y<=yr.max+.05){S.y=yr.max;S.vy=0;S.grounded=true;p=box();continue;}
+   if(S.gravity<0&&S.vy>=0&&prevY+height<=yr.min+.05&&S.y+height>=yr.min-.05){S.y=yr.min-height;S.vy=0;S.grounded=true;p=box();continue;}
+   if(polygonRectHit(p,vertices)){die('colisión con pendiente #'+o.id);return false;}
+   continue;
+  }
   const xOverlap=p.l<b.r&&p.r>b.l;
   if(!xOverlap)continue;
   if(ONE_WAY_SOLIDS.has(o.id)){
@@ -426,10 +470,13 @@ function drawHitboxes(){
   }else if(HAZARDS.has(o.id)){
    const g=spikeGeometry(o),a=g.angle,c=Math.cos(a),s=Math.sin(a);
    ctx.strokeStyle='#ff647c';
-   const cs=[[-g.hx,-g.hy],[g.hx,-g.hy],[g.hx,g.hy],[-g.hx,g.hy]].map(v=>[sx+v[0]*c-v[1]*s,sy-v[0]*s-v[1]*c]);
+   const scx=sx+(g.cx-o.x),scy=FLOOR-g.cy;
+   const cs=[[-g.hx,-g.hy],[g.hx,-g.hy],[g.hx,g.hy],[-g.hx,g.hy]].map(v=>[scx+v[0]*c-v[1]*s,scy-v[0]*s-v[1]*c]);
    ctx.beginPath();ctx.moveTo(cs[0][0],cs[0][1]);cs.slice(1).forEach(v=>ctx.lineTo(v[0],v[1]));ctx.closePath();ctx.stroke();
   }else if(SOLIDS.has(o.id)||ONE_WAY_SOLIDS.has(o.id)){
    const b=obox(o);ctx.strokeStyle='#77b8ff';ctx.strokeRect(sx-(o.x-b.l),FLOOR-b.t,b.r-b.l,b.t-b.b);
+  }else if(SLOPES.has(o.id)||SLOPE_HAZARDS.has(o.id)){
+   const pts=slopeVertices(o).map(v=>[PLAYER_X+v.x-S.x,FLOOR-v.y]);ctx.strokeStyle=SLOPE_HAZARDS.has(o.id)?'#ff647c':'#77b8ff';ctx.beginPath();ctx.moveTo(pts[0][0],pts[0][1]);pts.slice(1).forEach(v=>ctx.lineTo(v[0],v[1]));ctx.closePath();ctx.stroke();
   }else if(PORTALS[o.id]){
    const b=portalBox(o);ctx.strokeStyle='#c38bff';ctx.strokeRect(sx-(o.x-b.l),FLOOR-b.t,b.r-b.l,b.t-b.b);
   }
